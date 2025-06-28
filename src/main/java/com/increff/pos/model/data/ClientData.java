@@ -1,7 +1,7 @@
 package com.increff.pos.model.data;
 
 public class ClientData {
-    private int id;
+    private Long id;
     private String name;
 
     public void setName(String name) {
@@ -12,11 +12,11 @@ public class ClientData {
         return name;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 }
