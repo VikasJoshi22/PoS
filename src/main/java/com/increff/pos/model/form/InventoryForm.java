@@ -6,7 +6,9 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ClientForm {
+public class InventoryForm {
     @NotNull
-    private String name;
+    private Integer productId;
+    @NotNull
+    private Integer quantity;
 }

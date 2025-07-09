@@ -26,24 +26,24 @@ public class ClientDao {
     }
 
     public List<ClientPojo> getAll() {
-        TypedQuery<ClientPojo> query = em.createQuery(getAllQuery, ClientPojo.class);
+        Query query = em.createQuery(getAllQuery);
         return query.getResultList();
     }
 
-    public void delete(Long id) {
+    public void delete(Integer id) {
         Query query = em.createQuery(deleteQuery);
         query.setParameter("id", id);
         query.executeUpdate();
     }
 
-    public void update(Long id, String name) {
+    public void update(Integer id, String name) {
         Query query = em.createQuery(update);
         query.setParameter("id", id);
         query.setParameter("name", name.toLowerCase());
         query.executeUpdate();
     }
 
-    public ClientPojo get(Long id) {
+    public ClientPojo getById(Integer id) {
         Query query = em.createQuery(getByIdQuery);
         query.setParameter("id", id);
         try {
@@ -53,7 +53,7 @@ public class ClientDao {
         }
     }
 
-    public ClientPojo getByName(String name){
+    public ClientPojo getByName(String name) {
         Query query = em.createQuery(getByNameQuery);
         query.setParameter("name", name);
         try {

@@ -1,14 +1,12 @@
 package com.increff.pos.dto;
 
-import com.increff.pos.dao.ClientDao;
+import com.increff.pos.api.ClientApi;
 import com.increff.pos.model.data.ClientData;
 import com.increff.pos.model.form.ClientForm;
 import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Component;
-import com.increff.pos.dto.DtoHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,16 +16,17 @@ import java.util.List;
 public class ClientDto {
 
     @Autowired
-    private ClientDao clientDao;
+    private ClientApi clientApi;
 
     public void add(ClientForm client) throws ApiException {
-        checkName(client.getName());
-        ClientPojo c = DtoHelper.convertClientFormToClientPojo(client);
-        clientDao.add(c);
+        DtoHelper.normalizeClientForm(client);
+        DtoHelper.validateClientForm(client);
+        ClientPojo clientPojo = DtoHelper.convertClientFormToClientPojo(client);
+        clientApi.add(clientPojo);
     }
 
     public List<ClientData> getAll() {
-        List<ClientPojo> clientPojoList = clientDao.getAll();
+        List<ClientPojo> clientPojoList = clientApi.getAll();
         List<ClientData> clientDataList = new ArrayList<ClientData>();
 
         //Converting clientPojoList To ClientDataList;
@@ -38,33 +37,18 @@ public class ClientDto {
         return clientDataList;
     }
 
-    public void delete(Long id) throws ApiException {
-        checkId(id);
-        clientDao.delete(id);
+    public void delete(Integer id) throws ApiException {
+        clientApi.delete(id);
     }
 
-    public void update(Long id, ClientForm clientForm) throws ApiException{
-        checkId(id);
-        clientDao.update(id, clientForm.getName());
+    public void update(Integer id, ClientForm clientForm) throws ApiException{
+        DtoHelper.normalizeClientForm(clientForm);
+        DtoHelper.validateClientForm(clientForm);
+        clientApi.update(id, clientForm.getName());
     }
 
-    public ClientData get(Long id) throws ApiException{
-        checkId(id);
-        ClientPojo clientPojo = clientDao.get(id);
+    public ClientData getById(Integer id) throws ApiException{
+        ClientPojo clientPojo = clientApi.getById(id);
         return DtoHelper.convertClientPojoToClientData(clientPojo);
-    }
-
-    public void checkId(Long id) throws ApiException{
-        ClientPojo clientPojo = clientDao.get(id);
-        if(clientPojo==null) {
-            throw new ApiException("Id doesn't exist");
-        }
-    }
-
-    public void checkName(String name) throws ApiException{
-        ClientPojo clientPojo = clientDao.getByName(name);
-        if(clientPojo!=null) {
-            throw new ApiException("Client already exists");
-        }
     }
 }

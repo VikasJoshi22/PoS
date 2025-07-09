@@ -12,7 +12,7 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/client")
+@RequestMapping("/api/clients")
 public class ClientController {
 
     @Autowired
@@ -32,18 +32,18 @@ public class ClientController {
 
     @ApiOperation("Deletes a client")
     @RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
-    public void delete (@PathVariable Long id) throws ApiException{
+    public void delete (@PathVariable Integer id) throws ApiException{
         clientDto.delete(id);
     }
 
     @ApiOperation("updates a client")
     @RequestMapping(path = "/update/{id}", method = RequestMethod.PUT)
-    public void update(@PathVariable Long id,  @RequestBody ClientForm client) throws ApiException{
+    public void update(@PathVariable Integer id,  @RequestBody ClientForm client) throws ApiException{
         clientDto.update(id, client);
     }
 
     @RequestMapping(path = "/get/{id}" , method = RequestMethod.GET)
-    public ClientData get(@PathVariable Long id) throws ApiException{
-        return clientDto.get(id);
+    public ClientData getById(@PathVariable Integer id) throws ApiException{
+        return clientDto.getById(id);
     }
 }

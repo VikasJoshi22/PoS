@@ -1,26 +1,45 @@
 package com.increff.pos.controller;
 
 import com.increff.pos.dto.ProductDto;
+import com.increff.pos.model.data.ProductData;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/product")
+@RequestMapping("/api/products")
 public class ProductController {
     @Autowired
     private ProductDto productDto;
 
 
     @ApiOperation("add a single product")
-    @RequestMapping("/add")
+    @RequestMapping(path = "/add", method = RequestMethod.POST)
     public void add(@RequestBody ProductForm productForm) throws ApiException {
         productDto.add(productForm);
+    }
+
+    @ApiOperation("get all client's info")
+    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+    public List<ProductData> getAll(){
+        return productDto.getAll();
+    }
+
+    @ApiOperation("Update a product's details")
+    @RequestMapping(path = "/update/{id}", method = RequestMethod.PUT)
+    public void update(@PathVariable Integer id, @RequestBody ProductForm productForm) throws ApiException{
+        productDto.update(id, productForm);
+    }
+
+    @ApiOperation("Add multiple products using tsv.")
+    @RequestMapping(path = "/batch-add", method = RequestMethod.POST)
+    public void batchAdd(@RequestBody List<ProductForm> productFormList) throws ApiException{
+        productDto.batchAdd(productFormList);
     }
 }

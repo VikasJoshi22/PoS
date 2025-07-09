@@ -6,15 +6,11 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ProductForm {
+public class OrderForm {
     @NotNull
     private String barcode;
     @NotNull
-    private Integer clientId;
+    private Integer quantity;
     @NotNull
-    private String name;
-    @NotNull
-    private Double mrp;
-    @NotNull
-    private String imageUrl;
+    private Double sellingPrice;
 }

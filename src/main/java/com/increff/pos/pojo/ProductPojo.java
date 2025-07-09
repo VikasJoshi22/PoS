@@ -1,69 +1,33 @@
 package com.increff.pos.pojo;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
 import javax.persistence.*;
 
+@Getter
+@Setter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "barcode"))
 public class ProductPojo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Integer id;
+
+    @Column(nullable = false)
     private String barcode;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id")
-    private ClientPojo client;
+    @Column(nullable = false)
+    private Integer clientId;
 
+    @Column(nullable = false)
     private String name;
+
+    @Column(nullable = false)
     private Double mrp;
+
+    @Column
     private String imageUrl;
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getBarcode() {
-        return barcode;
-    }
-
-    public ClientPojo getClient() {
-        return client;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public Double getMrp() {
-        return mrp;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setBarcode(String barcode) {
-        this.barcode = barcode;
-    }
-
-    public void setClient(ClientPojo client) {
-        this.client = client;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setMrp(Double mrp) {
-        this.mrp = mrp;
-    }
-
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
-    }
 }

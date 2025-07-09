@@ -18,7 +18,7 @@ public class AppRestControllerAdvice {
     @ExceptionHandler(Throwable.class)
     public MessageData handle(Throwable e) {
         MessageData data = new MessageData();
-        data.setMessage("some unknown exception occured" + e.getMessage());
+        data.setMessage("some unknown exception occured " + e.getMessage());
         return data;
     }
 }
