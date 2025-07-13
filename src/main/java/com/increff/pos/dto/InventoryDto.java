@@ -2,6 +2,7 @@ package com.increff.pos.dto;
 
 import com.increff.pos.api.InventoryApi;
 import com.increff.pos.flow.InventoryFlow;
+import com.increff.pos.model.data.ErrorResponse;
 import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.pojo.InventoryPojo;
@@ -20,30 +21,43 @@ public class InventoryDto {
     @Autowired
     private InventoryFlow inventoryFlow;
 
-    public void update(InventoryForm inventoryForm) throws ApiException {
+    public void add(InventoryForm inventoryForm) throws ApiException {
         DtoHelper.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
-        inventoryFlow.update(inventoryPojo);
+        inventoryFlow.add(inventoryPojo);
     }
 
-    public void batchUpdate(List<InventoryForm> inventoryFormList) throws ApiException{
-        StringBuilder failures = new StringBuilder();
-        int row = 1;
+    public List<ErrorResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
         List<InventoryPojo> inventoryPojoList = new ArrayList<>();
+        List<ErrorResponse<InventoryForm>> errorResponseList = new ArrayList<>();
+
         for(InventoryForm inventoryForm: inventoryFormList){
             try{
                 DtoHelper.validateInventoryForm(inventoryForm);
             }catch (ApiException e){
-                failures.append("Row "+row+": "+e.getMessage()+".\n");
+                ErrorResponse<InventoryForm> errorResponse = new ErrorResponse<>();
+                errorResponse.setData(inventoryForm);
+                errorResponse.setMessage(e.getMessage()+"\n");
+                errorResponseList.add(errorResponse);
             }
-            row++;
             InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
             inventoryPojoList.add(inventoryPojo);
         }
-        if(failures.length() != 0){
-            throw new ApiException(failures.toString());
+        if(!errorResponseList.isEmpty()){
+            return errorResponseList;
         }
-        inventoryFlow.batchUpdate(inventoryPojoList);
+
+        List<ErrorResponse<InventoryPojo>> errorResponses =  inventoryFlow.batchAdd(inventoryPojoList);
+
+        // converting list of ErrorResponse<InventoryPojo> to ErrorResponse<InventoryForm>
+        for(ErrorResponse<InventoryPojo> errorResponsePojo: errorResponses){
+            ErrorResponse<InventoryForm> errorResponse = new ErrorResponse<>();
+            InventoryForm inventoryForm = DtoHelper.convertInventoryPojoToInventoryForm(errorResponsePojo.getData());
+            errorResponse.setData(inventoryForm);
+            errorResponse.setMessage(errorResponsePojo.getMessage());
+            errorResponseList.add(errorResponse);
+        }
+        return errorResponseList;
     }
 
     public List<InventoryData> getAll(){
@@ -53,5 +67,11 @@ public class InventoryDto {
             inventoryDataList.add(DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo));
         }
         return inventoryDataList;
+    }
+
+    public void edit(InventoryForm inventoryForm) throws ApiException {
+        DtoHelper.validateInventoryForm(inventoryForm);
+        InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
+        inventoryFlow.edit(inventoryPojo);
     }
 }

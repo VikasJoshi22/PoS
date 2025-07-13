@@ -4,14 +4,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.ZonedDateTime;
+import java.util.List;
 
 @Getter
 @Setter
 public class OrderData {
-    private Integer orderId;
-    private Integer productId;
-    private Integer quantity;
-    private Double sellingPrice;
-    private ZonedDateTime dateTime;
-    private Boolean orderPlaced;
+    private Integer id;
+    private String dateTime;
+    private List<OrderItemData> orderItems;
 }

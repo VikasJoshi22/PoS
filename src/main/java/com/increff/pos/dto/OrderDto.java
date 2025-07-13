@@ -4,21 +4,22 @@ import com.increff.pos.dao.OrderDao;
 import com.increff.pos.dao.ProductDao;
 import com.increff.pos.flow.OrderFlow;
 import com.increff.pos.model.data.OrderData;
+import com.increff.pos.model.data.OrderError;
+import com.increff.pos.model.data.OrderItemData;
 import com.increff.pos.model.form.OrderForm;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
-import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -32,88 +33,97 @@ public class OrderDto {
     @Autowired
     private OrderFlow orderFlow;
 
+    public List<OrderError> create(List<OrderForm> orderFormList) throws ApiException{
 
-    public void create(OrderForm orderForm) throws ApiException {
-        DtoHelper.normalizeOrderForm(orderForm);
-        DtoHelper.validateOrderForm(orderForm);
-        OrderItemPojo orderItemPojo = DtoHelper.convertOrderFormToOrderItemPojo(orderForm); // For now, productId and orderId are empty
-        orderFlow.create(orderItemPojo, orderForm.getBarcode());
-
-        //checking if product with given barcode exists or not
-//        ProductPojo product = productDao.getByBarcode(orderForm.getBarcode());
-//        if(Objects.isNull(product)){
-//            throw new ApiException("Product with barcode '"+orderForm.getBarcode()+"' doesn't exists");
-//        }
-
-        //checking product availability
-//        InventoryPojo inventory = inventoryDao.getByProduct(product);
-//        if(Objects.isNull(inventory) || (inventory.getQuantity() <= 0)) {
-//            throw new ApiException("Product '" + product.getName() + "' with barcode '" + product.getBarcode() + "' is out of Stock");
-//        } else if (inventory.getQuantity() < orderForm.getQuantity()) {
-//            throw new ApiException("Only "+ inventory.getQuantity() + (inventory.getQuantity()==1 ? " item is" : " items are") + " in stock for product '" + product.getName() + "' with barcode '" + product.getBarcode());
-//        }
-
-        //creating OrderPojo and passing it in OrderItemPojo
-//        OrderPojo order = createOrderPojo();
-//        orderDao.addOrder(order);
-//        orderDao.addOrderItem();
-
-        //reducing inventory
-//        inventory.setQuantity(inventory.getQuantity() - orderForm.getQuantity());
-//        inventoryDao.update(inventory);
-    }
-
-    public void batchCreate(List<OrderForm> orderFormList) throws ApiException{
-
-        //this string will contain all the issues
-        StringBuilder issues = new StringBuilder();
-
+        List<OrderError> orderErrorList = new ArrayList<>();
         List<OrderItemPojo> orderItemPojoList = new ArrayList<>();
         List<String> barcodeList = new ArrayList<>();
 
+        //checking for duplicate barcodes in input
+        Set<String> barcodes = new HashSet<>();
+
+        int index = 0;
         for(OrderForm orderForm: orderFormList) {
+
             try{
-                DtoHelper.normalizeOrderForm(orderForm);
-                DtoHelper.validateOrderForm(orderForm);
                 orderItemPojoList.add(DtoHelper.convertOrderFormToOrderItemPojo(orderForm));
                 barcodeList.add(orderForm.getBarcode());
+
+                //checking if barcode already exists
+                if(barcodes.contains(orderForm.getBarcode())){
+                    throw new ApiException("this product has already been added to this order");
+                }
+                barcodes.add(orderForm.getBarcode());
+                DtoHelper.normalizeOrderForm(orderForm);
+                DtoHelper.validateOrderForm(orderForm);
             }catch (ApiException apiException){
-                issues.append(apiException.getMessage()).append("\n");
+                OrderError orderError = new OrderError();
+                orderError.setMessage(apiException.getMessage());
+                orderError.setIndex(index);
+                orderError.setBarcode(orderForm.getBarcode());
+
+                orderErrorList.add(orderError);
             }
+            index++;
         }
 
-        //if there is some issue in orderFormList, then it will throw ApiException and the whole method will be rolled back
-        if(issues.length()!=0){
-            throw new ApiException(issues.toString());
-        }else {
-            orderFlow.batchCreate(orderItemPojoList, barcodeList);
-        }
+        orderErrorList.addAll(orderFlow.create(orderItemPojoList, barcodeList));
+        return orderErrorList;
     }
 
-    @ApiOperation("get all order's detail")
-    @RequestMapping("/get-all")
-    public List<OrderData> getAll(){
-        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
-        HashMap<Integer, ZonedDateTime> orderMap = new HashMap<>();
-        for(OrderPojo orderPojo: orderPojoList){
-            orderMap.put(orderPojo.getId(), orderPojo.getDateTime());
+    public OrderData getOrderDetails(Integer orderId) throws ApiException {
+        OrderData orderData = new OrderData();
+
+        OrderPojo orderPojo = orderFlow.getOrderById(orderId);
+        List<OrderItemPojo> orderItemPojoList = orderFlow.getOrderItemsByOrderId(orderId);
+        List<OrderItemData> orderItemDataList = new ArrayList<>();
+        for(OrderItemPojo orderItemPojo: orderItemPojoList){
+            OrderItemData orderItemData = DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo);
+            orderItemDataList.add(orderItemData);
         }
 
-        List<OrderItemPojo> orderItemPojoList = orderFlow.getAllOrderItem();
+        //making OrderData out of OrderPojo and OrderItemPojo
+        orderData.setId(orderId);
+        ZonedDateTime dateTime = orderPojo.getDateTime();
+        orderData.setDateTime(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        orderData.setOrderItems(orderItemDataList);
+        return orderData;
+    }
 
+    public List<OrderData> getAllOrderDetails() throws ApiException {
         List<OrderData> orderDataList = new ArrayList<>();
-        for(OrderItemPojo orderItemPojo: orderItemPojoList){
-            OrderData orderData = DtoHelper.convertOrderItemPojoToOrderData(orderItemPojo);
-
-            ZonedDateTime dateTime =  orderMap.get(orderData.getOrderId());
-            orderData.setOrderPlaced(Objects.nonNull(dateTime));
-            orderData.setDateTime(dateTime);
-
+        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
+        for(OrderPojo orderPojo: orderPojoList){
+            OrderData orderData = getOrderDetails(orderPojo.getId());
             orderDataList.add(orderData);
         }
-
-
         return orderDataList;
     }
+
+//    @ApiOperation("get all order's detail")
+//    @RequestMapping("/get-all")
+//    public List<OrderData> getAll(){
+//        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
+//        HashMap<Integer, ZonedDateTime> orderMap = new HashMap<>();
+//        for(OrderPojo orderPojo: orderPojoList){
+//            orderMap.put(orderPojo.getId(), orderPojo.getDateTime());
+//        }
+//
+//        List<OrderItemPojo> orderItemPojoList = orderFlow.getAllOrderItem();
+//
+//        List<OrderData> orderDataList = new ArrayList<>();
+//        for(OrderItemPojo orderItemPojo: orderItemPojoList){
+//            OrderData orderData = DtoHelper.convertOrderItemPojoToOrderData(orderItemPojo);
+//
+//            ZonedDateTime dateTime =  orderMap.get(orderData.getOrderId());
+//            orderData.setOrderPlaced(Objects.nonNull(dateTime));
+//            orderData.setDateTime(dateTime);
+//
+//            orderDataList.add(orderData);
+//        }
+//
+//
+//        return orderDataList;
+//    }
 
 }

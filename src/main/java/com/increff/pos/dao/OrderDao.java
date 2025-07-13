@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import java.util.List;
@@ -15,6 +16,7 @@ import java.util.List;
 @Transactional(rollbackFor = ApiException.class)
 public class OrderDao {
     private static final String getAllOrdersQuery = "select p from OrderPojo p";
+    private static final String getByIdQuery = "select p from OrderPojo p where id=:id";
 
 
     @PersistenceContext
@@ -33,5 +35,13 @@ public class OrderDao {
     }
 
 
-
+    public OrderPojo getById(Integer orderId) {
+        Query query = em.createQuery(getByIdQuery);
+        query.setParameter("id", orderId);
+        try{
+            return (OrderPojo)query.getSingleResult();
+        } catch (NoResultException e){
+            return null;
+        }
+    }
 }

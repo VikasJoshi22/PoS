@@ -3,10 +3,12 @@ package com.increff.pos.api;
 import com.increff.pos.dao.OrderDao;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
+import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class OrderApi {
@@ -19,5 +21,13 @@ public class OrderApi {
 
     public List<OrderPojo> getAllOrders(){
         return orderDao.getAllOrders();
+    }
+
+    public OrderPojo getById(Integer orderId) throws ApiException {
+        OrderPojo orderPojo = orderDao.getById(orderId);
+        if(Objects.isNull(orderPojo)){
+            throw new ApiException("order with id '"+orderId+"' doesn't exists");
+        }
+        return orderPojo;
     }
 }

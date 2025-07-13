@@ -14,6 +14,7 @@ import java.util.List;
 @Transactional(rollbackFor = ApiException.class)
 public class OrderItemDao {
     private static final String getAllOrderItemsQuery = "select p from OrderItemPojo p";
+    private static final String getByOrderIdQuery = "select p from OrderItemPojo p where orderId=:orderId";
 
     @PersistenceContext
     private EntityManager em;
@@ -24,6 +25,12 @@ public class OrderItemDao {
 
     public List<OrderItemPojo> getAllOrderItems() {
         Query query = em.createQuery(getAllOrderItemsQuery);
+        return query.getResultList();
+    }
+
+    public List<OrderItemPojo> getByOrderId(Integer orderId) {
+        Query query = em.createQuery(getByOrderIdQuery);
+        query.setParameter("orderId", orderId);
         return query.getResultList();
     }
 }

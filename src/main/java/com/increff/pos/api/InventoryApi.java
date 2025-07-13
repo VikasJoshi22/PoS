@@ -2,7 +2,6 @@ package com.increff.pos.api;
 
 import com.increff.pos.dao.InventoryDao;
 import com.increff.pos.pojo.InventoryPojo;
-import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,18 +13,21 @@ public class InventoryApi {
     @Autowired
     private InventoryDao inventoryDao;
 
-    public void update(InventoryPojo inventoryPojo){
+    public void add(InventoryPojo inventoryPojo){
         // checking if inventory already exists
         InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
+
         //if it doesn't exist then we will create a new row, otherwise update the existing inventory
         if(Objects.isNull(inventory)){
             inventoryDao.add(inventoryPojo);
         }else{
+            //increasing inventory
+            inventoryPojo.setQuantity(inventory.getQuantity() + inventoryPojo.getQuantity());
             inventoryDao.update(inventoryPojo);
         }
     }
 
-    public void batchUpdate(List<InventoryPojo> inventoryPojoList) {
+    public void batchAdd(List<InventoryPojo> inventoryPojoList) {
         for(InventoryPojo inventoryPojo: inventoryPojoList){
             // checking if inventory already exists
             InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
@@ -33,6 +35,8 @@ public class InventoryApi {
             if(Objects.isNull(inventory)){
                 inventoryDao.add(inventoryPojo);
             }else{
+                //increasing inventory
+                inventoryPojo.setQuantity(inventory.getQuantity() + inventoryPojo.getQuantity());
                 inventoryDao.update(inventoryPojo);
             }
         }
@@ -44,5 +48,17 @@ public class InventoryApi {
 
     public InventoryPojo getByProductId(Integer productId){
         return inventoryDao.getByProduct(productId);
+    }
+
+    public void edit(InventoryPojo inventoryPojo) {
+        // checking if inventory already exists
+        InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
+
+        //if it doesn't exist then we will create a new row, otherwise update the existing inventory
+        if(Objects.isNull(inventory)){
+            inventoryDao.add(inventoryPojo);
+        }else{
+            inventoryDao.update(inventoryPojo);
+        }
     }
 }

@@ -1,9 +1,6 @@
 package com.increff.pos.dto;
 
-import com.increff.pos.model.data.ClientData;
-import com.increff.pos.model.data.InventoryData;
-import com.increff.pos.model.data.OrderData;
-import com.increff.pos.model.data.ProductData;
+import com.increff.pos.model.data.*;
 import com.increff.pos.model.form.ClientForm;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.model.form.OrderForm;
@@ -12,11 +9,7 @@ import com.increff.pos.pojo.*;
 import com.increff.pos.utils.ApiException;
 import com.increff.pos.utils.Constants;
 
-import javax.persistence.criteria.Order;
-import java.net.ConnectException;
 import java.text.DecimalFormat;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.Objects;
 
 public class DtoHelper {
@@ -81,15 +74,15 @@ public class DtoHelper {
         return orderItemPojo;
     }
 
-    public static OrderData convertOrderItemPojoToOrderData(OrderItemPojo orderItemPojo) {
-        OrderData orderData = new OrderData();
+    public static OrderItemData convertOrderItemPojoToOrderItemData(OrderItemPojo orderItemPojo) {
+        OrderItemData orderItemData = new OrderItemData();
 
-        orderData.setProductId(orderItemPojo.getProductId());
-        orderData.setOrderId(orderItemPojo.getOrderId());
-        orderData.setQuantity(orderItemPojo.getQuantity());
-        orderData.setSellingPrice(orderItemPojo.getSellingPrice());
+        orderItemData.setId(orderItemPojo.getId());
+        orderItemData.setQuantity(orderItemPojo.getQuantity());
+        orderItemData.setProductId(orderItemPojo.getProductId());
+        orderItemData.setSellingPrice(orderItemPojo.getSellingPrice());
 
-        return orderData;
+        return orderItemData;
     }
 
     public static void normalizeClientForm(ClientForm clientForm){
@@ -145,5 +138,24 @@ public class DtoHelper {
         } else if (orderForm.getBarcode().length() > Constants.MAX_LENGTH) {
             throw new ApiException("Barcode should not exceed "+ Constants.MAX_LENGTH+" letters");
         }
+    }
+
+    public static ProductForm convertProductPojoToProductForm(ProductPojo productPojo){
+        ProductForm productForm = new ProductForm();
+
+        productForm.setImageUrl(productPojo.getImageUrl());
+        productForm.setClientId(productPojo.getClientId());
+        productForm.setName(productPojo.getName());
+        productForm.setMrp(productPojo.getMrp());
+        productForm.setBarcode(productPojo.getBarcode());
+
+        return productForm;
+    }
+
+    public static InventoryForm convertInventoryPojoToInventoryForm(InventoryPojo inventoryPojo){
+        InventoryForm inventoryForm = new InventoryForm();
+        inventoryForm.setProductId(inventoryPojo.getProductId());
+        inventoryForm.setQuantity(inventoryPojo.getQuantity());
+        return inventoryForm;
     }
 }

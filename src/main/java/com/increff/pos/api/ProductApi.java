@@ -1,12 +1,15 @@
 package com.increff.pos.api;
 
 import com.increff.pos.dao.ProductDao;
+import com.increff.pos.model.data.ErrorResponse;
+import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,21 +40,20 @@ public class ProductApi {
         productDao.update(id, productPojo);
     }
 
-    public void batchAdd(List<ProductPojo> productPojoList) throws ApiException {
-        StringBuilder failuresMessage = new StringBuilder();
-        int row = 1;
+    public List<ErrorResponse<ProductPojo>> batchAdd(List<ProductPojo> productPojoList){
+        List<ErrorResponse<ProductPojo>> errorResponseList = new ArrayList<>();
         for(ProductPojo productPojo: productPojoList){
             try{
                 checkDuplicateBarcode(productPojo.getBarcode());
                 productDao.add(productPojo);
             }catch (ApiException e){
-                failuresMessage.append("Row "+row+": "+e.getMessage()+".\n");
+                ErrorResponse<ProductPojo> errorResponse = new ErrorResponse<>();
+                errorResponse.setData(productPojo);
+                errorResponse.setMessage(e.getMessage()+"\n");
+                errorResponseList.add(errorResponse);
             }
-            row++;
         }
-        if(failuresMessage.length()>0){
-            throw new ApiException(failuresMessage.toString());
-        }
+        return errorResponseList;
     }
 
     public ProductPojo getByBarcode(String barcode){

@@ -2,7 +2,7 @@ package com.increff.pos.flow;
 
 import com.increff.pos.api.InventoryApi;
 import com.increff.pos.api.ProductApi;
-import com.increff.pos.model.form.InventoryForm;
+import com.increff.pos.model.data.ErrorResponse;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,28 +22,32 @@ public class InventoryFlow {
     @Autowired
     private InventoryApi inventoryApi;
 
-    public void update(InventoryPojo inventoryPojo) throws ApiException{
+    public void add(InventoryPojo inventoryPojo) throws ApiException{
         doesProductExists(inventoryPojo.getProductId());
-        inventoryApi.update(inventoryPojo);
+        inventoryApi.add(inventoryPojo);
     }
 
-    public void batchUpdate(List<InventoryPojo> inventoryPojoList) throws ApiException {
-        StringBuilder failuremessage = new StringBuilder();
-        int row = 1;
+    public List<ErrorResponse<InventoryPojo>> batchAdd(List<InventoryPojo> inventoryPojoList){
+        List<ErrorResponse<InventoryPojo>> errorResponseList = new ArrayList<>();
+
         for(InventoryPojo inventoryPojo: inventoryPojoList){
             try{
                 doesProductExists(inventoryPojo.getProductId());
             } catch (ApiException e) {
-                failuremessage.append("row "+row+": "+ e.getMessage()+"\n ");
+                ErrorResponse<InventoryPojo> errorResponse = new ErrorResponse<>();
+                errorResponse.setMessage(e.getMessage()+"\n");
+                errorResponse.setData(inventoryPojo);
+                errorResponseList.add(errorResponse);
             }
-            row++;
         }
-        if(failuremessage.length() > 0){
-            throw new ApiException(failuremessage.toString());
-        }
-        inventoryApi.batchUpdate(inventoryPojoList);
+        inventoryApi.batchAdd(inventoryPojoList);
+        return errorResponseList;
     }
 
+    public void edit(InventoryPojo inventoryPojo) throws ApiException {
+        doesProductExists(inventoryPojo.getProductId());
+        inventoryApi.edit(inventoryPojo);
+    }
 
     private void doesProductExists(Integer id) throws ApiException{
         ProductPojo product = productApi.getById(id);
@@ -50,4 +55,5 @@ public class InventoryFlow {
             throw new ApiException("product doesn't exists");
         }
     }
+
 }

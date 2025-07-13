@@ -19,4 +19,8 @@ public class OrderItemApi {
     public List<OrderItemPojo> getAllOrderItems() {
         return orderItemDao.getAllOrderItems();
     }
+
+    public List<OrderItemPojo> getByOrderId(Integer orderId) {
+        return orderItemDao.getByOrderId(orderId);
+    }
 }

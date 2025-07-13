@@ -4,15 +4,21 @@ import com.increff.pos.api.InventoryApi;
 import com.increff.pos.api.OrderApi;
 import com.increff.pos.api.OrderItemApi;
 import com.increff.pos.api.ProductApi;
+import com.increff.pos.model.data.OrderError;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
+import com.sun.org.apache.xpath.internal.operations.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -28,41 +34,12 @@ public class OrderFlow {
     @Autowired
     private OrderItemApi orderItemApi;
 
-    public void create(OrderItemPojo orderItemPojo, String barcode) throws ApiException{
-        //checking if product exists or not
-        ProductPojo productPojo = productApi.getByBarcode(barcode);
-        if(Objects.isNull(productPojo)){
-            throw new ApiException("Product with barcode '"+barcode+"' doesn't exists");
-        }else {
-            orderItemPojo.setProductId(productPojo.getId());
-        }
-
-        //checking product availability
-        InventoryPojo inventory = inventoryApi.getByProductId(productPojo.getId());
-        if(Objects.isNull(inventory) || (inventory.getQuantity() <= 0)) {
-            throw new ApiException("Product '" + productPojo.getName() + "' with barcode '" + productPojo.getBarcode() + "' is out of Stock");
-        } else if (inventory.getQuantity() < orderItemPojo.getQuantity()) {
-            throw new ApiException("Only "+ inventory.getQuantity() + (inventory.getQuantity()==1 ? " item is" : " items are") + " in stock for product '" + productPojo.getName() + "' with barcode '" + productPojo.getBarcode());
-        }
-
-        //creating OrderPojo and setting it's id in OrderItemPojo
-        OrderPojo orderPojo = new OrderPojo();
-        orderApi.addOrder(orderPojo);
-        orderItemPojo.setOrderId(orderPojo.getId());
-        orderItemApi.addOrderItem(orderItemPojo);
-
-        //reducing inventory
-        inventory.setQuantity(inventory.getQuantity() - orderItemPojo.getQuantity());
-        inventoryApi.update(inventory);
-
-    }
-
-    public void batchCreate(List<OrderItemPojo> orderItemPojoList, List<String> barcodeList) throws ApiException{
-        //this string will contain all the issues
-        StringBuilder issues = new StringBuilder();
+    public List<OrderError> create(List<OrderItemPojo> orderItemPojoList, List<String> barcodeList) throws ApiException{
+        List<OrderError> orderErrorList = new ArrayList<>();
 
         // OrderPojo will be same for every item in bulk order
         OrderPojo order = new OrderPojo();
+        order.setDateTime(ZonedDateTime.now(ZoneId.of("UTC")));
         orderApi.addOrder(order);
 
         int i = 0;
@@ -72,6 +49,8 @@ public class OrderFlow {
                 ProductPojo product = productApi.getByBarcode(barcodeList.get(i));
                 if(Objects.isNull(product)){
                     throw new ApiException("Product with barcode '"+barcodeList.get(i)+"' doesn't exists");
+                } else if (product.getMrp() < orderItemPojo.getSellingPrice()) {
+                    throw new ApiException("Selling Price of Product is Higher than MRP");
                 } else{
                     orderItemPojo.setProductId(product.getId());
                 }
@@ -89,25 +68,37 @@ public class OrderFlow {
 
                 //reducing inventory
                 inventory.setQuantity(inventory.getQuantity() - orderItemPojo.getQuantity());
-                inventoryApi.update(inventory);
+                inventoryApi.edit(inventory);
 
             }catch (ApiException apiException){
-                issues.append(apiException.getMessage()).append("\n");
+                OrderError orderError = new OrderError();
+                orderError.setBarcode(barcodeList.get(i));
+                orderError.setIndex(i);
+                orderError.setMessage(apiException.getMessage());
+                orderErrorList.add(orderError);
             }
             i++;
         }
-
-        //if there is some issue in orderFormList, then it will throw ApiException and the whole method will be rolled back
-        if(issues.length()!=0){
-            throw new ApiException(issues.toString());
+        if(!orderErrorList.isEmpty()){
+            //if there is some issue in orderFormList, then it will throw ApiException and the whole method will be rolled back
+            TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
+        return orderErrorList;
     }
 
     public List<OrderItemPojo> getAllOrderItem(){
         return orderItemApi.getAllOrderItems();
     }
 
+    public List<OrderItemPojo> getOrderItemsByOrderId(Integer orderId){
+        return orderItemApi.getByOrderId(orderId);
+    }
+
     public List<OrderPojo> getAllOrders(){
         return orderApi.getAllOrders();
+    }
+
+    public OrderPojo getOrderById(Integer orderId) throws ApiException {
+        return orderApi.getById(orderId);
     }
 }
