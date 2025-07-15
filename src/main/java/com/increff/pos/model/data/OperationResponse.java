@@ -3,11 +3,9 @@ package com.increff.pos.model.data;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class ErrorResponse<T> {
+public class OperationResponse<T> {
     private T data;
     private String message;
 }

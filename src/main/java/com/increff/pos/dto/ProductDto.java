@@ -2,7 +2,7 @@ package com.increff.pos.dto;
 
 import com.increff.pos.api.ProductApi;
 import com.increff.pos.flow.ProductFlow;
-import com.increff.pos.model.data.ErrorResponse;
+import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.ProductData;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.pojo.ProductPojo;
@@ -46,47 +46,45 @@ public class ProductDto {
         productFlow.update(id, productPojo);
     }
 
-    public List<ErrorResponse<ProductForm>> batchAdd(List<ProductForm> productFormList) throws ApiException{
+    public List<OperationResponse<ProductForm>> batchAdd(List<ProductForm> productFormList) throws ApiException{
         List<ProductPojo> productPojoList = new ArrayList<>();
-        List<ErrorResponse<ProductForm>> errorResponseList = new ArrayList<>();
+        List<OperationResponse<ProductForm>> operationResponseList = new ArrayList<>();
 
         Set<String> barcodes = new HashSet<>();
+        boolean errorOccured = false;
         for(ProductForm productForm: productFormList){
+            OperationResponse<ProductForm> operationResponse = new OperationResponse<>();
+            operationResponse.setData(productForm);
+            operationResponse.setMessage("No error");
             try{
-                if(barcodes.contains(productForm.getBarcode())){
-                    throw new ApiException("file contain duplicate barcodes");
-                } else {
-                    barcodes.add(productForm.getBarcode());
-                }
                 DtoHelper.normalizeProductForm(productForm);
                 DtoHelper.validateProductForm(productForm);
-                ProductPojo productPojo = DtoHelper.convertProductFormToProductPojo(productForm);
-                productPojoList.add(productPojo);
             } catch (ApiException e){
                 //pushing error to error list
-                ErrorResponse<ProductForm> errorResponse = new ErrorResponse<>();
-                errorResponse.setData(productForm);
-                errorResponse.setMessage(e.getMessage()+"\n");
-                errorResponseList.add(errorResponse);
+                errorOccured = true;
+                operationResponse.setMessage(e.getMessage());
             }
-        }
-        if(!errorResponseList.isEmpty()){
-            return errorResponseList;
+            ProductPojo productPojo = DtoHelper.convertProductFormToProductPojo(productForm);
+            productPojoList.add(productPojo);
+            operationResponseList.add(operationResponse);
         }
 
-        List<ErrorResponse<ProductPojo>> errorResponses =  productApi.batchAdd(productPojoList);
+        if(errorOccured){
+            return operationResponseList;
+        }else {
+            operationResponseList.clear();
+        }
+        List<OperationResponse<ProductPojo>> operationResponses = productFlow.batchAdd(productPojoList);
 
         // converting errorResponse of ProductPojo to ProductForm
-        for(ErrorResponse<ProductPojo> errorResponse: errorResponses){
-            ProductForm productForm = DtoHelper.convertProductPojoToProductForm(errorResponse.getData());
-            ErrorResponse<ProductForm> errorProductForm = new ErrorResponse<>();
-            errorProductForm.setMessage(errorResponse.getMessage());
-            errorProductForm.setData(productForm);
-
-            errorResponseList.add(errorProductForm);
+        for(OperationResponse<ProductPojo> operationResponse: operationResponses){
+            ProductForm productForm = DtoHelper.convertProductPojoToProductForm(operationResponse.getData());
+            OperationResponse<ProductForm> operationProductForm = new OperationResponse<>();
+            operationProductForm.setMessage(operationResponse.getMessage());
+            operationProductForm.setData(productForm);
+            operationResponseList.add(operationProductForm);
         }
-
-        return errorResponseList;
+        return operationResponseList;
     }
 
     public ProductData getById(Integer id) throws ApiException{

@@ -7,6 +7,7 @@ import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +24,12 @@ public class OrderApi {
         return orderDao.getAllOrders();
     }
 
+    public void makeOrderInvoiced(Integer id) throws ApiException {
+        OrderPojo orderPojo = getById(id);
+        orderPojo.setOrderInvoiced();
+        orderDao.update(id, orderPojo);
+    }
+
     public OrderPojo getById(Integer orderId) throws ApiException {
         OrderPojo orderPojo = orderDao.getById(orderId);
         if(Objects.isNull(orderPojo)){
@@ -30,4 +37,5 @@ public class OrderApi {
         }
         return orderPojo;
     }
+
 }

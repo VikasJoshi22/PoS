@@ -18,4 +18,18 @@ public class OrderPojo {
 
     @Column(nullable = false)
     private ZonedDateTime dateTime;
+
+    @Column(nullable = false)
+    private String status = "created";
+
+    public void setOrderInvoiced(){
+        this.status = "invoiced";
+    }
+
+    public boolean isInvoiced(){
+        if(this.status=="invoiced"){
+            return true;
+        }
+        return false;
+    }
 }

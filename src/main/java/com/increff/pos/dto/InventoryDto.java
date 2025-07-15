@@ -2,7 +2,7 @@ package com.increff.pos.dto;
 
 import com.increff.pos.api.InventoryApi;
 import com.increff.pos.flow.InventoryFlow;
-import com.increff.pos.model.data.ErrorResponse;
+import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.pojo.InventoryPojo;
@@ -27,37 +27,42 @@ public class InventoryDto {
         inventoryFlow.add(inventoryPojo);
     }
 
-    public List<ErrorResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
+    public List<OperationResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
         List<InventoryPojo> inventoryPojoList = new ArrayList<>();
-        List<ErrorResponse<InventoryForm>> errorResponseList = new ArrayList<>();
+        List<OperationResponse<InventoryForm>> operationResponseList = new ArrayList<>();
 
+        boolean errorOccured = false;
         for(InventoryForm inventoryForm: inventoryFormList){
+            OperationResponse<InventoryForm> operationResponse = new OperationResponse<>();
+            operationResponse.setData(inventoryForm);
+            operationResponse.setMessage("No error");
             try{
                 DtoHelper.validateInventoryForm(inventoryForm);
             }catch (ApiException e){
-                ErrorResponse<InventoryForm> errorResponse = new ErrorResponse<>();
-                errorResponse.setData(inventoryForm);
-                errorResponse.setMessage(e.getMessage()+"\n");
-                errorResponseList.add(errorResponse);
+                operationResponse.setMessage(e.getMessage());
+                errorOccured = true;
             }
             InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
             inventoryPojoList.add(inventoryPojo);
+            operationResponseList.add(operationResponse);
         }
-        if(!errorResponseList.isEmpty()){
-            return errorResponseList;
+        if(errorOccured){
+            return operationResponseList;
+        }else {
+            operationResponseList.clear();
         }
 
-        List<ErrorResponse<InventoryPojo>> errorResponses =  inventoryFlow.batchAdd(inventoryPojoList);
+        List<OperationResponse<InventoryPojo>> operationResponses =  inventoryFlow.batchAdd(inventoryPojoList);
 
         // converting list of ErrorResponse<InventoryPojo> to ErrorResponse<InventoryForm>
-        for(ErrorResponse<InventoryPojo> errorResponsePojo: errorResponses){
-            ErrorResponse<InventoryForm> errorResponse = new ErrorResponse<>();
-            InventoryForm inventoryForm = DtoHelper.convertInventoryPojoToInventoryForm(errorResponsePojo.getData());
-            errorResponse.setData(inventoryForm);
-            errorResponse.setMessage(errorResponsePojo.getMessage());
-            errorResponseList.add(errorResponse);
+        for(OperationResponse<InventoryPojo> operationResponsePojo: operationResponses){
+            OperationResponse<InventoryForm> operationResponse = new OperationResponse<>();
+            InventoryForm inventoryForm = DtoHelper.convertInventoryPojoToInventoryForm(operationResponsePojo.getData());
+            operationResponse.setData(inventoryForm);
+            operationResponse.setMessage(operationResponsePojo.getMessage());
+            operationResponseList.add(operationResponse);
         }
-        return errorResponseList;
+        return operationResponseList;
     }
 
     public List<InventoryData> getAll(){

@@ -17,6 +17,7 @@ import java.util.List;
 public class OrderDao {
     private static final String getAllOrdersQuery = "select p from OrderPojo p";
     private static final String getByIdQuery = "select p from OrderPojo p where id=:id";
+    private static final String updateQuery = "update OrderPojo p set p.dateTime=:dateTime, p.status=:status where id=:id";
 
 
     @PersistenceContext
@@ -26,7 +27,14 @@ public class OrderDao {
         em.persist(orderPojo);
     }
 
+    public void update(Integer id, OrderPojo orderPojo){
+        Query query = em.createQuery(updateQuery);
+        query.setParameter("dateTime", orderPojo.getDateTime());
+        query.setParameter("status", orderPojo.getStatus());
+        query.setParameter("id", id);
 
+        query.executeUpdate();
+    }
 
 
     public List<OrderPojo> getAllOrders() {

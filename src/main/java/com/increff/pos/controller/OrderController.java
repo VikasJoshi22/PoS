@@ -1,15 +1,19 @@
 package com.increff.pos.controller;
 
+import com.increff.pos.dto.InvoiceDto;
 import com.increff.pos.dto.OrderDto;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
 import com.increff.pos.model.form.OrderForm;
+import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.apache.xpath.operations.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Api
@@ -19,6 +23,8 @@ public class OrderController {
 
     @Autowired
     private OrderDto orderDto;
+    @Autowired
+    private InvoiceDto invoiceDto;
 
     @ApiOperation("create bulk order")
     @RequestMapping(path = "/create", method = RequestMethod.PUT)
@@ -32,16 +38,21 @@ public class OrderController {
         return orderDto.getOrderDetails(orderId);
     }
 
-    @ApiOperation("Getting all order's detail")
-    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-    public List<OrderData> getAllOrdersDetail() throws ApiException{
-        return orderDto.getAllOrderDetails();
+//    @ApiOperation("Getting all order's detail")
+//    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+//    public List<OrderData> getAllOrdersDetail() throws ApiException{
+//        return orderDto.getAllOrderDetails();
+//    }
+
+    @RequestMapping(path = "/invoiced/{id}", method = RequestMethod.PUT)
+    public void makeOrderInvoiced(@PathVariable Integer id, OrderPojo orderPojo) throws ApiException{
+        orderDto.makeOrderInvoiced(id);
     }
 
-//    @ApiOperation("getting all order's detail.")
-//    @RequestMapping(path = "get-all", method = RequestMethod.GET)
-//    public List<OrderData> getAll(){
-//        return orderDto.getAll();
-//    }
+    @ApiOperation("getting all order's detail.")
+    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+    public List<OrderData> getAll(){
+        return orderDto.getAll();
+    }
 
 }

@@ -1,7 +1,7 @@
 package com.increff.pos.controller;
 
 import com.increff.pos.dto.ProductDto;
-import com.increff.pos.model.data.ErrorResponse;
+import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.ProductData;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.utils.ApiException;
@@ -40,7 +40,7 @@ public class ProductController {
 
     @ApiOperation("Add multiple products using tsv.")
     @RequestMapping(path = "/batch-add", method = RequestMethod.POST)
-    public List<ErrorResponse<ProductForm>> batchAdd(@RequestBody List<ProductForm> productFormList) throws ApiException{
+    public List<OperationResponse<ProductForm>> batchAdd(@RequestBody List<ProductForm> productFormList) throws ApiException{
         return productDto.batchAdd(productFormList);
     }
 

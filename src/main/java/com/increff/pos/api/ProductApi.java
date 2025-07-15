@@ -1,8 +1,7 @@
 package com.increff.pos.api;
 
 import com.increff.pos.dao.ProductDao;
-import com.increff.pos.model.data.ErrorResponse;
-import com.increff.pos.model.form.ProductForm;
+import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,20 +39,26 @@ public class ProductApi {
         productDao.update(id, productPojo);
     }
 
-    public List<ErrorResponse<ProductPojo>> batchAdd(List<ProductPojo> productPojoList){
-        List<ErrorResponse<ProductPojo>> errorResponseList = new ArrayList<>();
+    public List<OperationResponse<ProductPojo>> batchAdd(List<ProductPojo> productPojoList){
+        List<OperationResponse<ProductPojo>> operationResponseList = new ArrayList<>();
+
+        boolean errorOccured = false;
         for(ProductPojo productPojo: productPojoList){
+            OperationResponse<ProductPojo> operationResponse = new OperationResponse<>();
+            operationResponse.setData(productPojo);
+            operationResponse.setMessage("No error");
             try{
                 checkDuplicateBarcode(productPojo.getBarcode());
-                productDao.add(productPojo);
             }catch (ApiException e){
-                ErrorResponse<ProductPojo> errorResponse = new ErrorResponse<>();
-                errorResponse.setData(productPojo);
-                errorResponse.setMessage(e.getMessage()+"\n");
-                errorResponseList.add(errorResponse);
+                operationResponse.setMessage(e.getMessage());
+                errorOccured = true;
             }
+            operationResponseList.add(operationResponse);
         }
-        return errorResponseList;
+        if(!errorOccured){
+            productDao.batchAdd(productPojoList);
+        }
+        return operationResponseList;
     }
 
     public ProductPojo getByBarcode(String barcode){

@@ -23,6 +23,12 @@ public class ProductDao {
         em.persist(productPojo);
     }
 
+    public void batchAdd(List<ProductPojo> productPojoList){
+        for(ProductPojo productPojo: productPojoList){
+            em.persist(productPojo);
+        }
+    }
+
     public List<ProductPojo> getAll(){
         TypedQuery<ProductPojo> query = em.createQuery(getAllQuery, ProductPojo.class);
         return query.getResultList();

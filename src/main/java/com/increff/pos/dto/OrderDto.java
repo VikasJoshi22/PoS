@@ -1,5 +1,6 @@
 package com.increff.pos.dto;
 
+import com.increff.pos.api.OrderApi;
 import com.increff.pos.dao.OrderDao;
 import com.increff.pos.dao.ProductDao;
 import com.increff.pos.flow.OrderFlow;
@@ -16,22 +17,20 @@ import org.springframework.stereotype.Component;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Component
 public class OrderDto {
     @Autowired
-    private OrderDao orderDao;
+    private OrderApi orderApi;
 
     @Autowired
     private ProductDao productDao;
 
     @Autowired
     private OrderFlow orderFlow;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss z");
 
     public List<OrderError> create(List<OrderForm> orderFormList) throws ApiException{
 
@@ -84,46 +83,53 @@ public class OrderDto {
 
         //making OrderData out of OrderPojo and OrderItemPojo
         orderData.setId(orderId);
+        orderData.setStatus(orderPojo.getStatus());
         ZonedDateTime dateTime = orderPojo.getDateTime();
         orderData.setDateTime(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         orderData.setOrderItems(orderItemDataList);
         return orderData;
     }
 
-    public List<OrderData> getAllOrderDetails() throws ApiException {
-        List<OrderData> orderDataList = new ArrayList<>();
-        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
-        for(OrderPojo orderPojo: orderPojoList){
-            OrderData orderData = getOrderDetails(orderPojo.getId());
-            orderDataList.add(orderData);
-        }
-        return orderDataList;
-    }
-
-//    @ApiOperation("get all order's detail")
-//    @RequestMapping("/get-all")
-//    public List<OrderData> getAll(){
-//        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
-//        HashMap<Integer, ZonedDateTime> orderMap = new HashMap<>();
-//        for(OrderPojo orderPojo: orderPojoList){
-//            orderMap.put(orderPojo.getId(), orderPojo.getDateTime());
-//        }
-//
-//        List<OrderItemPojo> orderItemPojoList = orderFlow.getAllOrderItem();
-//
+//    public List<OrderData> getAllOrderDetails() throws ApiException {
 //        List<OrderData> orderDataList = new ArrayList<>();
-//        for(OrderItemPojo orderItemPojo: orderItemPojoList){
-//            OrderData orderData = DtoHelper.convertOrderItemPojoToOrderData(orderItemPojo);
-//
-//            ZonedDateTime dateTime =  orderMap.get(orderData.getOrderId());
-//            orderData.setOrderPlaced(Objects.nonNull(dateTime));
-//            orderData.setDateTime(dateTime);
-//
+//        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
+//        for(OrderPojo orderPojo: orderPojoList){
+//            OrderData orderData = getOrderDetails(orderPojo.getId());
 //            orderDataList.add(orderData);
 //        }
-//
-//
 //        return orderDataList;
 //    }
+
+    public void makeOrderInvoiced(Integer id) throws ApiException {
+        orderApi.makeOrderInvoiced(id);
+    }
+
+    public List<OrderData> getAll(){
+        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
+        // storing OrderData in hashMap for quick access
+        HashMap<Integer, OrderData> orderMap = new HashMap<>();
+
+        List<OrderItemPojo> orderItemPojoList = orderFlow.getAllOrderItem();
+
+        // entering keys and other fields in ordermap(except orderItems)
+        for(OrderPojo orderPojo: orderPojoList){
+            OrderData orderData = new OrderData();
+            orderData.setId(orderPojo.getId());
+            orderData.setStatus(orderPojo.getStatus());
+            orderData.setDateTime(orderPojo.getDateTime().format(formatter));
+
+            orderMap.put(orderPojo.getId(), orderData);
+        }
+
+        // putting orderItems to their respective ordermap
+        for(OrderItemPojo orderItemPojo: orderItemPojoList){
+            OrderData orderData = orderMap.get(orderItemPojo.getOrderId());
+            OrderItemData orderItemData = DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo);
+            orderData.addOrderItem(orderItemData);
+        }
+
+        //converting and returning orderMap to orderDataList
+        return new ArrayList<>(orderMap.values());
+    }
 
 }
