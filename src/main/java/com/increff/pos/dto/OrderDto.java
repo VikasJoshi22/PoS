@@ -116,7 +116,7 @@ public class OrderDto {
             OrderData orderData = new OrderData();
             orderData.setId(orderPojo.getId());
             orderData.setStatus(orderPojo.getStatus());
-            orderData.setDateTime(orderPojo.getDateTime().format(formatter));
+            orderData.setDateTime(orderPojo.getDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
             orderMap.put(orderPojo.getId(), orderData);
         }
