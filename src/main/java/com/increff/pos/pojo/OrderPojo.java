@@ -27,7 +27,7 @@ public class OrderPojo {
     }
 
     public boolean isInvoiced(){
-        if(this.status=="invoiced"){
+        if(this.status.equals("invoiced")){
             return true;
         }
         return false;

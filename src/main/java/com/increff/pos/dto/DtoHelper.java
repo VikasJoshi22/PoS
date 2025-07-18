@@ -10,6 +10,7 @@ import com.increff.pos.utils.ApiException;
 import com.increff.pos.utils.Constants;
 
 import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class DtoHelper {
@@ -158,5 +159,14 @@ public class DtoHelper {
         inventoryForm.setProductId(inventoryPojo.getProductId());
         inventoryForm.setQuantity(inventoryPojo.getQuantity());
         return inventoryForm;
+    }
+
+    public static DailySalesReportData convertDailySalesReportPojoToData(DailySalesReportPojo dailySalesReportPojo) {
+        DailySalesReportData dailySalesReportData = new DailySalesReportData();
+        dailySalesReportData.setDate(dailySalesReportPojo.getDateTime().format(DateTimeFormatter.ISO_DATE));
+        dailySalesReportData.setTotalRevenue(dailySalesReportPojo.getTotalRevenue());
+        dailySalesReportData.setInvoicedItemsCount(dailySalesReportPojo.getInvoicedItemsCount());
+        dailySalesReportData.setInvoicedOrdersCount(dailySalesReportPojo.getInvoicedOrdersCount());
+        return dailySalesReportData;
     }
 }

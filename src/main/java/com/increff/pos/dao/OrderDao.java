@@ -10,6 +10,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import java.time.ZonedDateTime;
 import java.util.List;
 
 @Repository
@@ -18,7 +19,7 @@ public class OrderDao {
     private static final String getAllOrdersQuery = "select p from OrderPojo p";
     private static final String getByIdQuery = "select p from OrderPojo p where id=:id";
     private static final String updateQuery = "update OrderPojo p set p.dateTime=:dateTime, p.status=:status where id=:id";
-
+    private static final String getBetweenDatesQuery = "select p from OrderPojo p where p.dateTime between :startDate and :endDate";
 
     @PersistenceContext
     private EntityManager em;
@@ -51,5 +52,13 @@ public class OrderDao {
         } catch (NoResultException e){
             return null;
         }
+    }
+
+    public List<OrderPojo> getBetweenDates(ZonedDateTime startDate, ZonedDateTime endDate){
+        Query query = em.createQuery(getBetweenDatesQuery);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+        List<OrderPojo> orderPojoList = query.getResultList();
+        return orderPojoList;
     }
 }

@@ -1,7 +1,6 @@
 package com.increff.pos.dto;
 
 import com.increff.pos.api.OrderApi;
-import com.increff.pos.dao.OrderDao;
 import com.increff.pos.dao.ProductDao;
 import com.increff.pos.flow.OrderFlow;
 import com.increff.pos.model.data.OrderData;
@@ -11,7 +10,6 @@ import com.increff.pos.model.form.OrderForm;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +17,6 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
-@Slf4j
 @Component
 public class OrderDto {
     @Autowired

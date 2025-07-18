@@ -43,6 +43,7 @@ public class ClientApi {
         return clientPojo;
     }
 
+
     private void checkName(String name) throws ApiException{
         ClientPojo clientPojo = clientDao.getByName(name);
         if(Objects.nonNull(clientPojo)) {

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -36,6 +37,10 @@ public class OrderApi {
             throw new ApiException("order with id '"+orderId+"' doesn't exists");
         }
         return orderPojo;
+    }
+
+    public List<OrderPojo> getBetweenDates(ZonedDateTime startDate, ZonedDateTime endDate){
+        return orderDao.getBetweenDates(startDate, endDate);
     }
 
 }
