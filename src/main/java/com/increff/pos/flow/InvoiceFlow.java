@@ -37,7 +37,7 @@ public class InvoiceFlow {
     private final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public File generateInvoice(Integer orderId) throws ApiException {
+    public String generateInvoice(Integer orderId) throws ApiException {
         OrderPojo orderPojo = orderApi.getById(orderId);
         if (orderPojo == null) {
             throw new ApiException("Order doesn't exist.\n");
@@ -77,13 +77,6 @@ public class InvoiceFlow {
         String url = "http://localhost:8000/invoice_app/api/invoices/generate-invoice";
         String base64Pdf = restTemplate.postForObject(url, invoiceData, String.class);
 
-        byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
-        File pdfFile = new File("src/main/resources/invoices/invoice" + orderId + ".pdf");
-        try (FileOutputStream fos = new FileOutputStream(pdfFile)) {
-            fos.write(pdfBytes);
-        } catch (IOException e) {
-            throw new ApiException("error while creating pdf file.");
-        }
-        return pdfFile;
+        return base64Pdf;
     }
 }

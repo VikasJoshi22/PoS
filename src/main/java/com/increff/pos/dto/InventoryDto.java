@@ -6,12 +6,14 @@ import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.pojo.InventoryPojo;
+import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Component
 public class InventoryDto {
@@ -78,5 +80,13 @@ public class InventoryDto {
         DtoHelper.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
         inventoryFlow.edit(inventoryPojo);
+    }
+
+    public InventoryData getByProductId(Integer productId) throws ApiException{
+        InventoryPojo inventoryPojo = inventoryApi.getByProductId(productId);
+        if(Objects.isNull(inventoryPojo)){
+            throw new ApiException("out of stock");
+        }
+        return DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo);
     }
 }

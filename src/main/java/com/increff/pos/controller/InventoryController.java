@@ -8,10 +8,7 @@ import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -44,5 +41,11 @@ public class InventoryController {
     @RequestMapping(path = "/get-all", method = RequestMethod.GET)
     public List<InventoryData> getAll(){
         return inventoryDto.getAll();
+    }
+
+    @ApiOperation("get inventory by product id")
+    @RequestMapping(path = "/get-by-product-id/{productId}", method = RequestMethod.GET)
+    public InventoryData getByProductId(@PathVariable Integer productId) throws ApiException{
+        return inventoryDto.getByProductId(productId);
     }
 }
