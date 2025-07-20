@@ -25,9 +25,9 @@ public class ClientDto {
         clientApi.add(clientPojo);
     }
 
-    public List<ClientData> getAll() {
-        List<ClientPojo> clientPojoList = clientApi.getAll();
-        List<ClientData> clientDataList = new ArrayList<ClientData>();
+    public List<ClientData> getAll(Integer page, Integer size) {
+        List<ClientPojo> clientPojoList = clientApi.getAll(page, size);
+        List<ClientData> clientDataList = new ArrayList<>();
 
         //Converting clientPojoList To ClientDataList;
         for (ClientPojo clientPojo : clientPojoList) {
@@ -50,5 +50,9 @@ public class ClientDto {
     public ClientData getById(Integer id) throws ApiException{
         ClientPojo clientPojo = clientApi.getById(id);
         return DtoHelper.convertClientPojoToClientData(clientPojo);
+    }
+
+    public Long getTotalCount(){
+        return clientApi.getTotalCount();
     }
 }

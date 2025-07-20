@@ -39,7 +39,7 @@ public class InventoryController {
 
     @ApiOperation("get all inventories")
     @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-    public List<InventoryData> getAll(){
+    public List<InventoryData> getAll() throws ApiException{
         return inventoryDto.getAll();
     }
 
@@ -47,5 +47,11 @@ public class InventoryController {
     @RequestMapping(path = "/get-by-product-id/{productId}", method = RequestMethod.GET)
     public InventoryData getByProductId(@PathVariable Integer productId) throws ApiException{
         return inventoryDto.getByProductId(productId);
+    }
+
+    @ApiOperation("get inventory by product id")
+    @RequestMapping(path = "/get-by-barcode/{barcode}", method = RequestMethod.GET)
+    public InventoryData getByBarcode(@PathVariable String barcode) throws ApiException{
+        return inventoryDto.getByBarcode(barcode);
     }
 }

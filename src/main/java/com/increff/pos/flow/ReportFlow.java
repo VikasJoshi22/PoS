@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Component
@@ -21,7 +22,7 @@ public class ReportFlow {
     @Autowired
     private OrderItemApi orderItemApi;
     @Autowired
-    private DailySalesReportApi reportApi;
+    private DailySalesReportApi dailySalesReportApi;
     @Autowired
     private ProductApi productApi;
     @Autowired
@@ -32,6 +33,13 @@ public class ReportFlow {
         ZonedDateTime dateTime = ZonedDateTime.now();
         ZonedDateTime startDate = dateTime.minusDays(1).with(LocalTime.of(0,0,0));
         ZonedDateTime endDate = dateTime.minusDays(1).with(LocalTime.of(23,59,59));
+
+        List<DailySalesReportPojo> dailySalesReportPojoList = dailySalesReportApi.getDailySalesReport(startDate.format(DateTimeFormatter.ISO_DATE_TIME), endDate.format(DateTimeFormatter.ISO_DATE_TIME));
+        if(!Objects.isNull(dailySalesReportPojoList) && !dailySalesReportPojoList.isEmpty()){
+            // it means that we have already updated the daily sales report
+            return;
+        }
+
         List<OrderPojo> orderPojoList =  orderApi.getBetweenDates(startDate, endDate);
 
 
@@ -54,7 +62,7 @@ public class ReportFlow {
         dailySalesReportPojo.setTotalRevenue(totalRevenue);
         dailySalesReportPojo.setInvoicedOrdersCount(invoicedOrderCount);
         dailySalesReportPojo.setInvoicedItemsCount(invoicedItemsCount);
-        reportApi.addDailySalesReport(dailySalesReportPojo);
+        dailySalesReportApi.addDailySalesReport(dailySalesReportPojo);
     }
 
     public List<SalesReportData> getSalesReport(SalesReportForm salesReportForm) throws ApiException {

@@ -28,8 +28,8 @@ public class ProductController {
 
     @ApiOperation("get all client's info")
     @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-    public List<ProductData> getAll(){
-        return productDto.getAll();
+    public List<ProductData> getAll(@RequestParam Integer page, @RequestParam Integer size, @RequestParam(defaultValue = "") String keyword) throws ApiException{
+        return productDto.getAll(page, size, keyword);
     }
 
     @ApiOperation("Update a product's details")
@@ -51,9 +51,15 @@ public class ProductController {
     }
 
     @ApiOperation("Get by barcode")
-    @RequestMapping(path = "/get-by-barcode/{barcode}")
+    @RequestMapping(path = "/get-by-barcode/{barcode}", method = RequestMethod.GET)
     public ProductData getByBarcode(@PathVariable String barcode) throws ApiException{
         return productDto.getByBarcode(barcode);
+    }
+
+    @ApiOperation("getting total no. of products")
+    @RequestMapping(path = "/get-total-count", method = RequestMethod.GET)
+    public Long getTotalCount(){
+        return productDto.getTotalCount();
     }
 
 }

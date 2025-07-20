@@ -2,18 +2,19 @@ package com.increff.pos.controller;
 
 import com.increff.pos.dto.InvoiceDto;
 import com.increff.pos.dto.OrderDto;
+import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
+import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.model.form.OrderForm;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.apache.xpath.operations.Or;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @Api
@@ -26,9 +27,10 @@ public class OrderController {
     @Autowired
     private InvoiceDto invoiceDto;
 
+
     @ApiOperation("create bulk order")
     @RequestMapping(path = "/create", method = RequestMethod.PUT)
-    public List<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
+    public ErrorData<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
         return orderDto.create(orderFormList);
     }
 
@@ -38,12 +40,6 @@ public class OrderController {
         return orderDto.getOrderDetails(orderId);
     }
 
-//    @ApiOperation("Getting all order's detail")
-//    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-//    public List<OrderData> getAllOrdersDetail() throws ApiException{
-//        return orderDto.getAllOrderDetails();
-//    }
-
     @RequestMapping(path = "/invoiced/{id}", method = RequestMethod.PUT)
     public void makeOrderInvoiced(@PathVariable Integer id, OrderPojo orderPojo) throws ApiException{
         orderDto.makeOrderInvoiced(id);
@@ -51,8 +47,14 @@ public class OrderController {
 
     @ApiOperation("getting all order's detail.")
     @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-    public List<OrderData> getAll(){
-        return orderDto.getAll();
+    public List<OrderData> getAll(@ModelAttribute OrderFilters orderfilters) throws ApiException{
+        return orderDto.getAll(orderfilters);
+    }
+
+    @ApiOperation("getting total no. of orders")
+    @RequestMapping(path = "/get-total-count", method = RequestMethod.GET)
+    public Long getTotalCount(@ModelAttribute OrderFilters orderFilters){
+        return orderDto.getTotalCount(orderFilters);
     }
 
 }

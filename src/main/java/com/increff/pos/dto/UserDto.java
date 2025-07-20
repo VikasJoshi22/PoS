@@ -15,7 +15,7 @@ public class UserDto {
     private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
     public void registerUser(UserForm userForm){
         UserPojo userPojo = new UserPojo();
-        userPojo.setEmail(userForm.getEmail());
+        userPojo.setEmail(userForm.getEmail().toLowerCase());
         userPojo.setPassword(bCryptPasswordEncoder.encode(userForm.getPassword()));
         userApi.add(userPojo);
     }

@@ -19,8 +19,8 @@ public class ClientApi {
         clientDao.add(clientPojo);
     }
 
-    public List<ClientPojo> getAll() {
-        List<ClientPojo> clientPojoList = clientDao.getAll();
+    public List<ClientPojo> getAll(Integer page, Integer size) {
+        List<ClientPojo> clientPojoList = clientDao.getAll(page, size);
         return clientPojoList;
     }
 
@@ -38,9 +38,13 @@ public class ClientApi {
     public ClientPojo getById(Integer id) throws ApiException{
         ClientPojo clientPojo = clientDao.getById(id);
         if(Objects.isNull(clientPojo)){
-            throw new ApiException("id doesn't exists");
+            throw new ApiException("client id doesn't exists");
         }
         return clientPojo;
+    }
+
+    public ClientPojo getByName(String name){
+        return clientDao.getByName(name);
     }
 
 
@@ -56,5 +60,9 @@ public class ClientApi {
         if(clientPojo==null) {
             throw new ApiException("Id doesn't exist");
         }
+    }
+
+    public Long getTotalCount(){
+        return clientDao.getTotalCount();
     }
 }

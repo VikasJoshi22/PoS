@@ -9,7 +9,10 @@ import com.increff.pos.pojo.DailySalesReportPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -37,6 +40,9 @@ public class ReportDto {
     }
 
     public List<SalesReportData> getSalesReport(SalesReportForm salesReportForm) throws ApiException {
+        //normalizing salesReportForm
+        salesReportForm.setClient(salesReportForm.getClient().toLowerCase());
+        salesReportForm.setProductBarcode(salesReportForm.getProductBarcode().toLowerCase());
         return reportFlow.getSalesReport(salesReportForm);
     }
 }

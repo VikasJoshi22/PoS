@@ -22,6 +22,8 @@ public class DailySalesReportApi {
     }
 
     public List<DailySalesReportPojo> getDailySalesReport(String startDate, String endDate){
+        ZonedDateTime start = ZonedDateTime.parse(startDate);
+        ZonedDateTime end = ZonedDateTime.parse(endDate);
 
         return reportDao.getDailySalesReport(ZonedDateTime.parse(startDate), ZonedDateTime.parse(endDate));
     }

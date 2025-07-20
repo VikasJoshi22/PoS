@@ -4,7 +4,9 @@ import com.increff.pos.api.InventoryApi;
 import com.increff.pos.api.OrderApi;
 import com.increff.pos.api.OrderItemApi;
 import com.increff.pos.api.ProductApi;
+import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderError;
+import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
@@ -34,13 +36,13 @@ public class OrderFlow {
     @Autowired
     private OrderItemApi orderItemApi;
 
-    public List<OrderError> create(List<OrderItemPojo> orderItemPojoList, List<String> barcodeList) throws ApiException{
+    public ErrorData<OrderError> create(List<OrderItemPojo> orderItemPojoList, List<String> barcodeList){
         List<OrderError> orderErrorList = new ArrayList<>();
 
         // OrderPojo will be same for every item in bulk order
         OrderPojo order = new OrderPojo();
         order.setDateTime(ZonedDateTime.now(ZoneId.of("UTC")));
-        orderApi.addOrder(order);
+        Integer orderId = orderApi.addOrder(order);
 
         int i = 0;
         for(OrderItemPojo orderItemPojo: orderItemPojoList) {
@@ -83,7 +85,11 @@ public class OrderFlow {
             //if there is some issue in orderFormList, then it will throw ApiException and the whole method will be rolled back
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
-        return orderErrorList;
+
+        ErrorData<OrderError> orderErrorData = new ErrorData<>();
+        orderErrorData.setErrorList(orderErrorList);
+        orderErrorData.setId(orderId);
+        return orderErrorData;
     }
 
     public List<OrderItemPojo> getAllOrderItem(){
@@ -94,8 +100,8 @@ public class OrderFlow {
         return orderItemApi.getByOrderId(orderId);
     }
 
-    public List<OrderPojo> getAllOrders(){
-        return orderApi.getAllOrders();
+    public List<OrderPojo> getAllOrders(OrderFilters orderFilters) throws ApiException{
+        return orderApi.getAllOrders(orderFilters);
     }
 
     public OrderPojo getOrderById(Integer orderId) throws ApiException {

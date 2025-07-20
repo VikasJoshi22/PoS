@@ -26,8 +26,8 @@ public class ClientController {
 
     @ApiOperation("gets all the client")
     @RequestMapping(path = "/get-all", method = RequestMethod.GET)
-    public List<ClientData> getAll(){
-        return clientDto.getAll();
+    public List<ClientData> getAll(@RequestParam Integer page, @RequestParam Integer size){
+        return clientDto.getAll(page, size);
     }
 
     @ApiOperation("Deletes a client")
@@ -45,5 +45,10 @@ public class ClientController {
     @RequestMapping(path = "/get/{id}" , method = RequestMethod.GET)
     public ClientData getById(@PathVariable Integer id) throws ApiException{
         return clientDto.getById(id);
+    }
+
+    @RequestMapping(path = "/get-total-count", method = RequestMethod.GET)
+    public Long getTotalCount(){
+        return clientDto.getTotalCount();
     }
 }

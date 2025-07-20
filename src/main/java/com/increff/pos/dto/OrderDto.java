@@ -3,15 +3,19 @@ package com.increff.pos.dto;
 import com.increff.pos.api.OrderApi;
 import com.increff.pos.dao.ProductDao;
 import com.increff.pos.flow.OrderFlow;
+import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
 import com.increff.pos.model.data.OrderItemData;
+import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.model.form.OrderForm;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
@@ -27,9 +31,8 @@ public class OrderDto {
 
     @Autowired
     private OrderFlow orderFlow;
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy - HH:mm:ss z");
 
-    public List<OrderError> create(List<OrderForm> orderFormList) throws ApiException{
+    public ErrorData<OrderError> create(List<OrderForm> orderFormList){
 
         List<OrderError> orderErrorList = new ArrayList<>();
         List<OrderItemPojo> orderItemPojoList = new ArrayList<>();
@@ -63,8 +66,10 @@ public class OrderDto {
             index++;
         }
 
-        orderErrorList.addAll(orderFlow.create(orderItemPojoList, barcodeList));
-        return orderErrorList;
+        ErrorData<OrderError> orderErrorData = orderFlow.create(orderItemPojoList, barcodeList);
+        orderErrorList.addAll(orderErrorData.getErrorList());
+        orderErrorData.setErrorList(orderErrorList);
+        return orderErrorData;
     }
 
     public OrderData getOrderDetails(Integer orderId) throws ApiException {
@@ -101,32 +106,27 @@ public class OrderDto {
         orderApi.makeOrderInvoiced(id);
     }
 
-    public List<OrderData> getAll(){
-        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
-        // storing OrderData in hashMap for quick access
-        HashMap<Integer, OrderData> orderMap = new HashMap<>();
-
-        List<OrderItemPojo> orderItemPojoList = orderFlow.getAllOrderItem();
-
-        // entering keys and other fields in ordermap(except orderItems)
+    public List<OrderData> getAll(OrderFilters orderFilters) throws ApiException{
+        List<OrderPojo> orderPojoList = orderFlow.getAllOrders(orderFilters);
+        List<OrderData> orderDataList = new ArrayList<>();
         for(OrderPojo orderPojo: orderPojoList){
             OrderData orderData = new OrderData();
             orderData.setId(orderPojo.getId());
+            orderData.setDateTime(orderPojo.getDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
             orderData.setStatus(orderPojo.getStatus());
-            orderData.setDateTime(orderPojo.getDateTime().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
 
-            orderMap.put(orderPojo.getId(), orderData);
+            List<OrderItemPojo> orderItemPojoList = orderFlow.getOrderItemsByOrderId(orderPojo.getId());
+            List<OrderItemData> orderItemDataList = new ArrayList<>();
+            for(OrderItemPojo orderItemPojo: orderItemPojoList){
+                orderItemDataList.add(DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo));
+            }
+            orderData.setOrderItems(orderItemDataList);
+            orderDataList.add(orderData);
         }
-
-        // putting orderItems to their respective ordermap
-        for(OrderItemPojo orderItemPojo: orderItemPojoList){
-            OrderData orderData = orderMap.get(orderItemPojo.getOrderId());
-            OrderItemData orderItemData = DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo);
-            orderData.addOrderItem(orderItemData);
-        }
-
-        //converting and returning orderMap to orderDataList
-        return new ArrayList<>(orderMap.values());
+        return orderDataList;
     }
 
+    public Long getTotalCount(OrderFilters orderFilters) {
+        return orderApi.getTotalCount(orderFilters);
+    }
 }

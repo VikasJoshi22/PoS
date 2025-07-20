@@ -36,7 +36,6 @@ public class DtoHelper {
         productPojo.setMrp(productForm.getMrp());
         productPojo.setImageUrl(productForm.getImageUrl());
         productPojo.setName(productForm.getName().toLowerCase());
-        productPojo.setClientId(productForm.getClientId());
         return productPojo;
     }
 
@@ -44,7 +43,6 @@ public class DtoHelper {
         ProductData productData = new ProductData();
 
         productData.setBarcode(productPojo.getBarcode());
-        productData.setClientId(productPojo.getClientId());
         productData.setName(productPojo.getName());
         productData.setId(productPojo.getId());
         productData.setMrp(productPojo.getMrp());
@@ -56,14 +54,12 @@ public class DtoHelper {
     public static InventoryPojo convertInventoryFormToInventoryPojo(InventoryForm inventoryForm){
         InventoryPojo inventoryPojo = new InventoryPojo();
         inventoryPojo.setQuantity(inventoryForm.getQuantity());
-        inventoryPojo.setProductId(inventoryForm.getProductId());
         return inventoryPojo;
     }
 
     public static InventoryData convertInventoryPojoToInventoryData(InventoryPojo inventoryPojo) {
         InventoryData inventoryData = new InventoryData();
         inventoryData.setId(inventoryPojo.getId());
-        inventoryData.setProductId(inventoryPojo.getProductId());
         inventoryData.setQuantity(inventoryPojo.getQuantity());
         return inventoryData;
     }
@@ -120,11 +116,14 @@ public class DtoHelper {
         productForm.setName(productForm.getName().trim().toLowerCase());
         productForm.setBarcode(productForm.getBarcode().trim().toLowerCase());
         productForm.setImageUrl(productForm.getImageUrl().trim());
+        productForm.setClientName(productForm.getClientName().trim().toLowerCase());
     }
 
     public static void validateInventoryForm(InventoryForm inventoryForm) throws ApiException{
         if(inventoryForm.getQuantity() <= 0){
             throw new ApiException("Quantity should be greater than 0");
+        } else if(inventoryForm.getBarcode().length() > Constants.MAX_LENGTH){
+            throw new ApiException("barcode should not be greater then 50 letters");
         }
     }
 
@@ -146,19 +145,11 @@ public class DtoHelper {
         ProductForm productForm = new ProductForm();
 
         productForm.setImageUrl(productPojo.getImageUrl());
-        productForm.setClientId(productPojo.getClientId());
         productForm.setName(productPojo.getName());
         productForm.setMrp(productPojo.getMrp());
         productForm.setBarcode(productPojo.getBarcode());
 
         return productForm;
-    }
-
-    public static InventoryForm convertInventoryPojoToInventoryForm(InventoryPojo inventoryPojo){
-        InventoryForm inventoryForm = new InventoryForm();
-        inventoryForm.setProductId(inventoryPojo.getProductId());
-        inventoryForm.setQuantity(inventoryPojo.getQuantity());
-        return inventoryForm;
     }
 
     public static DailySalesReportData convertDailySalesReportPojoToData(DailySalesReportPojo dailySalesReportPojo) {

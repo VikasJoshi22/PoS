@@ -10,7 +10,7 @@ public class ReportScheduler {
     @Autowired
     private ReportDto reportDto;
 
-    @Scheduled(cron = "0 48 10 * * ?")
+    @Scheduled(fixedDelay = 60000)
     public void updateDailySalesReport(){
         reportDto.updateDailySalesReport();
     }

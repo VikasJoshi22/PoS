@@ -6,7 +6,6 @@ import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.pojo.InventoryPojo;
-import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,9 +23,10 @@ public class InventoryDto {
     private InventoryFlow inventoryFlow;
 
     public void add(InventoryForm inventoryForm) throws ApiException {
+        inventoryForm.setBarcode(inventoryForm.getBarcode().toLowerCase().trim());
         DtoHelper.validateInventoryForm(inventoryForm);
-        InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
-        inventoryFlow.add(inventoryPojo);
+        InventoryPojo inventoryPojo = convert(inventoryForm);
+        inventoryApi.add(inventoryPojo);
     }
 
     public List<OperationResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
@@ -38,48 +38,36 @@ public class InventoryDto {
             OperationResponse<InventoryForm> operationResponse = new OperationResponse<>();
             operationResponse.setData(inventoryForm);
             operationResponse.setMessage("No error");
+
             try{
                 DtoHelper.validateInventoryForm(inventoryForm);
+                InventoryPojo inventoryPojo = convert(inventoryForm);
+                inventoryPojoList.add(inventoryPojo);
             }catch (ApiException e){
                 operationResponse.setMessage(e.getMessage());
                 errorOccured = true;
             }
-            InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
-            inventoryPojoList.add(inventoryPojo);
             operationResponseList.add(operationResponse);
         }
-        if(errorOccured){
-            return operationResponseList;
-        }else {
-            operationResponseList.clear();
-        }
-
-        List<OperationResponse<InventoryPojo>> operationResponses =  inventoryFlow.batchAdd(inventoryPojoList);
-
-        // converting list of ErrorResponse<InventoryPojo> to ErrorResponse<InventoryForm>
-        for(OperationResponse<InventoryPojo> operationResponsePojo: operationResponses){
-            OperationResponse<InventoryForm> operationResponse = new OperationResponse<>();
-            InventoryForm inventoryForm = DtoHelper.convertInventoryPojoToInventoryForm(operationResponsePojo.getData());
-            operationResponse.setData(inventoryForm);
-            operationResponse.setMessage(operationResponsePojo.getMessage());
-            operationResponseList.add(operationResponse);
+        if(!errorOccured){
+            inventoryApi.batchAdd(inventoryPojoList);
         }
         return operationResponseList;
     }
 
-    public List<InventoryData> getAll(){
+    public List<InventoryData> getAll() throws ApiException{
         List<InventoryPojo> inventoryPojoList = inventoryApi.getAll();
         List<InventoryData> inventoryDataList = new ArrayList<>();
         for(InventoryPojo inventoryPojo: inventoryPojoList){
-            inventoryDataList.add(DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo));
+            inventoryDataList.add(convert(inventoryPojo));
         }
         return inventoryDataList;
     }
 
     public void edit(InventoryForm inventoryForm) throws ApiException {
         DtoHelper.validateInventoryForm(inventoryForm);
-        InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
-        inventoryFlow.edit(inventoryPojo);
+        InventoryPojo inventoryPojo = convert(inventoryForm);
+        inventoryApi.edit(inventoryPojo);
     }
 
     public InventoryData getByProductId(Integer productId) throws ApiException{
@@ -87,6 +75,25 @@ public class InventoryDto {
         if(Objects.isNull(inventoryPojo)){
             throw new ApiException("out of stock");
         }
-        return DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo);
+        return convert(inventoryPojo);
     }
+
+    public InventoryData getByBarcode(String barcode) throws ApiException {
+        Integer productId = inventoryFlow.getProductByBarcode(barcode).getId();
+        return getByProductId(productId);
+    }
+
+
+    private InventoryPojo convert(InventoryForm inventoryForm) throws ApiException{
+        InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
+        inventoryPojo.setProductId(inventoryFlow.getProductByBarcode(inventoryForm.getBarcode()).getId());
+        return inventoryPojo;
+    }
+
+    private InventoryData convert(InventoryPojo inventoryPojo) throws ApiException{
+        InventoryData inventoryData = DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo);
+        inventoryData.setBarcode(inventoryFlow.getProductByProductId(inventoryPojo.getProductId()).getBarcode());
+        return inventoryData;
+    }
+
 }

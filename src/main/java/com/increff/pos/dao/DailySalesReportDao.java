@@ -13,7 +13,7 @@ import java.util.List;
 @Transactional
 @Repository
 public class DailySalesReportDao {
-    private static final String getDailySalesReportQuery = "select p from DailySalesReportPojo p where p.dateTime between :startDate and :endDate";
+    private static final String getDailySalesReportQuery = "select p from DailySalesReportPojo p where p.dateTime>=:startDate and p.dateTime<=:endDate";
 
     @PersistenceContext
     private EntityManager em;

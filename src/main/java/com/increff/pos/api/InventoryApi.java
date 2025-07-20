@@ -2,6 +2,7 @@ package com.increff.pos.api;
 
 import com.increff.pos.dao.InventoryDao;
 import com.increff.pos.pojo.InventoryPojo;
+import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -47,7 +48,13 @@ public class InventoryApi {
     }
 
     public InventoryPojo getByProductId(Integer productId){
-        return inventoryDao.getByProduct(productId);
+        InventoryPojo inventoryPojo = inventoryDao.getByProduct(productId);
+        if(Objects.isNull(inventoryPojo)){
+            inventoryPojo = new InventoryPojo();
+            inventoryPojo.setProductId(productId);
+            inventoryPojo.setQuantity(0);
+        }
+        return inventoryPojo;
     }
 
     public void edit(InventoryPojo inventoryPojo) {

@@ -1,6 +1,7 @@
 package com.increff.pos.api;
 
 import com.increff.pos.dao.OrderDao;
+import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
@@ -17,12 +18,17 @@ public class OrderApi {
     @Autowired
     private OrderDao orderDao;
 
-    public void addOrder(OrderPojo orderPojo){
-        orderDao.addOrder(orderPojo);
+    public Integer addOrder(OrderPojo orderPojo){
+        return orderDao.addOrder(orderPojo);
     }
 
-    public List<OrderPojo> getAllOrders(){
-        return orderDao.getAllOrders();
+    public List<OrderPojo> getAllOrders(OrderFilters orderFilters) throws ApiException{
+        Long totalCount = orderDao.getTotalCount(orderFilters);
+        if(totalCount!=0 && (long) orderFilters.getPage()*orderFilters.getSize() >= totalCount){
+            // not gonna invoked by fronted, most probably.
+            throw new ApiException("invalid page number");
+        }
+        return orderDao.getAllOrders(orderFilters);
     }
 
     public void makeOrderInvoiced(Integer id) throws ApiException {
@@ -43,4 +49,7 @@ public class OrderApi {
         return orderDao.getBetweenDates(startDate, endDate);
     }
 
+    public Long getTotalCount(OrderFilters orderFilters) {
+        return orderDao.getTotalCount(orderFilters);
+    }
 }

@@ -15,6 +15,7 @@ public class ProductDao {
     private static final String getByBarcodeQuery = "select p from ProductPojo p where barcode=:barcode";
     private static final String getByIdQuery = "select p from ProductPojo p where id=:id";
     private static final String updateQuery = "update ProductPojo p set p.barcode=:barcode, p.clientId=:clientId, p.name=:name, p.mrp=:mrp, p.imageUrl=:imageUrl where id=:id";
+    private static final String getTotalCountQuery = "select count(p) from ProductPojo p";
 
     @PersistenceContext
     private EntityManager em;
@@ -29,10 +30,23 @@ public class ProductDao {
         }
     }
 
-    public List<ProductPojo> getAll(){
-        TypedQuery<ProductPojo> query = em.createQuery(getAllQuery, ProductPojo.class);
+    public List<ProductPojo> getAll(Integer page, Integer size, String keyword){
+        String newQuery = new String(getAllQuery);
+        if(!keyword.isEmpty()){
+            newQuery+=" where p.barcode like :keyword or p.name like :keyword";
+        }
+        TypedQuery<ProductPojo> query = em.createQuery(newQuery, ProductPojo.class);
+        if(!keyword.isEmpty()){
+            keyword = "%"+keyword.toLowerCase().trim()+"%";
+            query.setParameter("keyword", keyword);
+        }
+        query.setFirstResult(page*size);
+        query.setMaxResults(size);
+
         return query.getResultList();
     }
+
+
 
     public ProductPojo getByBarcode(String barcode){
         Query query = em.createQuery(getByBarcodeQuery);
@@ -53,7 +67,6 @@ public class ProductDao {
         query.setParameter("mrp", productPojo.getMrp());
         query.setParameter("imageUrl", productPojo.getImageUrl());
         query.setParameter("barcode", productPojo.getBarcode());
-
         query.executeUpdate();
     }
 
@@ -65,6 +78,11 @@ public class ProductDao {
         }catch (NoResultException noResultException){
             return null;
         }
+    }
+
+    public Long getTotalCount(){
+        Query query = em.createQuery(getTotalCountQuery);
+        return (Long) query.getSingleResult();
     }
 
 }

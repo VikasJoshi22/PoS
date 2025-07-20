@@ -10,7 +10,7 @@ public class ProductForm {
     @NotNull
     private String barcode;
     @NotNull
-    private Integer clientId;
+    private String clientName;
     @NotNull
     private String name;
     @NotNull

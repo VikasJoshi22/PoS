@@ -3,10 +3,12 @@ package com.increff.pos.model.data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
+import java.util.List;
+
 @Getter
-public class InventoryData {
+@Setter
+public class ErrorData<T> {
     private Integer id;
-    private String barcode;
-    private Integer quantity;
+    private List<T> errorList;
+
 }

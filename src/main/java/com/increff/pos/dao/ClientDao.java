@@ -17,6 +17,8 @@ public class ClientDao {
     private static final String update = "update ClientPojo set name=:name where id=:id";
     private static final String getByIdQuery = "select p from ClientPojo p where id=:id";
     private static final String getByNameQuery = "select p from ClientPojo p where name=:name";
+    private static final String getTotalCountQuery = "select count(p) from ClientPojo p";
+
 
     @PersistenceContext
     private EntityManager em;
@@ -25,8 +27,10 @@ public class ClientDao {
         em.persist(client);
     }
 
-    public List<ClientPojo> getAll() {
+    public List<ClientPojo> getAll(Integer page, Integer size) {
         Query query = em.createQuery(getAllQuery);
+        query.setFirstResult(page*size);
+        query.setMaxResults(size);
         return query.getResultList();
     }
 
@@ -62,4 +66,10 @@ public class ClientDao {
             return null;
         }
     }
+
+    public Long getTotalCount(){
+        Query query = em.createQuery(getTotalCountQuery);
+        return (Long) query.getSingleResult();
+    }
+
 }

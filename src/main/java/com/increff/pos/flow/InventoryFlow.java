@@ -20,48 +20,17 @@ import java.util.Objects;
 public class InventoryFlow {
     @Autowired
     private ProductApi productApi;
-    @Autowired
-    private InventoryApi inventoryApi;
 
-    public void add(InventoryPojo inventoryPojo) throws ApiException{
-        doesProductExists(inventoryPojo.getProductId());
-        inventoryApi.add(inventoryPojo);
+    public ProductPojo getProductByBarcode(String barcode) throws ApiException{
+        ProductPojo productPojo = productApi.getByBarcode(barcode);
+        if(Objects.isNull(productPojo)){
+            throw new ApiException("barcode doesn't exists.");
+        }
+        return productPojo;
     }
 
-    public List<OperationResponse<InventoryPojo>> batchAdd(List<InventoryPojo> inventoryPojoList){
-        List<OperationResponse<InventoryPojo>> operationResponseList = new ArrayList<>();
-
-        boolean errorOccured = false;
-        for(InventoryPojo inventoryPojo: inventoryPojoList){
-            OperationResponse<InventoryPojo> operationResponse = new OperationResponse<>();
-            operationResponse.setData(inventoryPojo);
-            operationResponse.setMessage("No error");
-            try{
-                doesProductExists(inventoryPojo.getProductId());
-            } catch (ApiException e) {
-                errorOccured = true;
-                operationResponse.setMessage(e.getMessage());
-            }
-            operationResponseList.add(operationResponse);
-        }
-
-        // if there is any error then we'll not add any inventory
-        if(!errorOccured){
-            inventoryApi.batchAdd(inventoryPojoList);
-        }
-        return operationResponseList;
-    }
-
-    public void edit(InventoryPojo inventoryPojo) throws ApiException {
-        doesProductExists(inventoryPojo.getProductId());
-        inventoryApi.edit(inventoryPojo);
-    }
-
-    private void doesProductExists(Integer id) throws ApiException{
-        ProductPojo product = productApi.getById(id);
-        if(Objects.isNull(product)){
-            throw new ApiException("product doesn't exists");
-        }
+    public ProductPojo getProductByProductId(Integer productId) throws ApiException {
+        return productApi.getById(productId);
     }
 
 }

@@ -23,8 +23,12 @@ public class ProductApi {
         productDao.add(productPojo);
     }
 
-    public List<ProductPojo> getAll() {
-        return productDao.getAll();
+    public List<ProductPojo> getAll(Integer page, Integer size, String keyword) throws ApiException {
+        Long totalCount = productDao.getTotalCount();
+        if(totalCount!=0 && (long) page *size >= totalCount){
+            throw new ApiException("invalid page number");
+        }
+        return productDao.getAll(page, size, keyword);
     }
 
     public void update(Integer id, ProductPojo productPojo) throws ApiException {
@@ -69,11 +73,17 @@ public class ProductApi {
         return productDao.getById(id);
     }
 
+    public Long getTotalCount(){
+        return productDao.getTotalCount();
+    }
+
+
     private void checkDuplicateBarcode(String barcode) throws ApiException{
         ProductPojo productPojo = productDao.getByBarcode(barcode);
         if(Objects.nonNull(productPojo)){
             throw new ApiException("Barcode should be unique. Product '"+productPojo.getName()+"' already has barcode: '"+ barcode+"'");
         }
     }
+
 
 }

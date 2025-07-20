@@ -1,11 +1,14 @@
 package com.increff.pos.flow;
 
 import com.increff.pos.api.ClientApi;
+import com.increff.pos.api.InventoryApi;
 import com.increff.pos.api.ProductApi;
 import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.pojo.ClientPojo;
+import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -17,6 +20,8 @@ public class ProductFlow {
     private ClientApi clientApi;
     @Autowired
     private ProductApi productApi;
+    @Autowired
+    private InventoryApi inventoryApi;
 
     public void add(ProductPojo productPojo) throws ApiException {
         doesClientExists(productPojo.getClientId());
@@ -58,6 +63,18 @@ public class ProductFlow {
             operationResponseList.clear();
         }
         return productApi.batchAdd(productPojoList);
+    }
+
+    public ClientPojo getClientById(Integer clientId) throws ApiException {
+        return clientApi.getById(clientId);
+    }
+
+    public ClientPojo getClientByName(String name){
+        return clientApi.getByName(name);
+    }
+
+    public InventoryPojo getInventoryByProductId(Integer productId){
+        return inventoryApi.getByProductId(productId);
     }
 
     private void doesClientExists(Integer clientId) throws ApiException{
