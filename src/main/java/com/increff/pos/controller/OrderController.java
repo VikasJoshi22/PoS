@@ -12,7 +12,6 @@ import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,7 +28,7 @@ public class OrderController {
 
 
     @ApiOperation("create bulk order")
-    @RequestMapping(path = "/create", method = RequestMethod.PUT)
+    @RequestMapping(path = "/supervisor/create", method = RequestMethod.PUT)
     public ErrorData<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
         return orderDto.create(orderFormList);
     }

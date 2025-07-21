@@ -8,7 +8,6 @@ import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -115,7 +114,7 @@ public class ProductDto {
         return productData;
     }
 
-    private ProductPojo convert(ProductForm productForm){
+    private ProductPojo convert(ProductForm productForm) throws ApiException{
         ProductPojo productPojo = DtoHelper.convertProductFormToProductPojo(productForm);
         productPojo.setClientId(productFlow.getClientByName(productForm.getClientName()).getId());
         return productPojo;

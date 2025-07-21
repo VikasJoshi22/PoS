@@ -8,4 +8,5 @@ import lombok.Setter;
 public class UserPrincipal {
     private Integer id;
     private String email;
+    private String role;
 }

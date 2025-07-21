@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class MessageData {
     private String message;
+    private StackTraceElement[] stackTrace;
 }

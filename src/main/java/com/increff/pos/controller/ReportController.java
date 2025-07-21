@@ -3,7 +3,6 @@ package com.increff.pos.controller;
 import com.increff.pos.dto.ReportDto;
 import com.increff.pos.model.data.DailySalesReportData;
 import com.increff.pos.model.data.SalesReportData;
-import com.increff.pos.model.form.DailySalesReportForm;
 import com.increff.pos.model.form.SalesReportForm;
 import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;

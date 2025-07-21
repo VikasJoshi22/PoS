@@ -14,7 +14,7 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/inventories")
+@RequestMapping("/api/inventories/supervisor")
 public class InventoryController {
     @Autowired
     private InventoryDto inventoryDto;

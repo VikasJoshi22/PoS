@@ -69,12 +69,14 @@ public class LoginController {
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<SimpleGrantedAuthority>();
         if(supervisor.equals(p.getEmail())){
             authorities.add(new SimpleGrantedAuthority("supervisor"));
+            principal.setRole("supervisor");
         } else{
             authorities.add(new SimpleGrantedAuthority("operator"));
+            principal.setRole("operator");
         }
 
         // Create Authentication
-        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(principal, p.getEmail(), authorities);
+        UsernamePasswordAuthenticationToken token = new UsernamePasswordAuthenticationToken(principal, null, authorities);
         return token;
     }
 }

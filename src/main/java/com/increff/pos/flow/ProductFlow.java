@@ -69,8 +69,12 @@ public class ProductFlow {
         return clientApi.getById(clientId);
     }
 
-    public ClientPojo getClientByName(String name){
-        return clientApi.getByName(name);
+    public ClientPojo getClientByName(String name) throws ApiException{
+        ClientPojo clientPojo = clientApi.getByName(name);
+        if(Objects.isNull(clientPojo)){
+            throw new ApiException("client "+name+" doesn't exists.");
+        }
+        return clientPojo;
     }
 
     public InventoryPojo getInventoryByProductId(Integer productId){

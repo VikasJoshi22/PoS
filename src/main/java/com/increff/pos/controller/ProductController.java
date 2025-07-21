@@ -14,7 +14,7 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/products/supervisor")
 public class ProductController {
     @Autowired
     private ProductDto productDto;
