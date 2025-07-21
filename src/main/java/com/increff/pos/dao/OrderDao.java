@@ -4,6 +4,7 @@ import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
+import com.increff.pos.utils.Constants;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,7 +57,7 @@ public class OrderDao {
         query.setMaxResults(orderFilters.getSize());
         query.setFirstResult(orderFilters.getPage()*orderFilters.getSize());
         if(orderFilters.getStartDate().isEmpty()){
-            query.setParameter("startDate", ZonedDateTime.parse("2025-07-15T10:47:38.803+05:30"));
+            query.setParameter("startDate", ZonedDateTime.parse(Constants.MIN_DATE));
         } else {
             query.setParameter("startDate", ZonedDateTime.parse(orderFilters.getStartDate()));
         }
@@ -104,7 +105,7 @@ public class OrderDao {
 
         Query query = em.createQuery(editedQuery);
         if(orderFilters.getStartDate().isEmpty()){
-            query.setParameter("startDate", ZonedDateTime.parse("2025-07-15T10:47:38.803+05:30"));
+            query.setParameter("startDate", ZonedDateTime.parse(Constants.MIN_DATE));
         } else {
             query.setParameter("startDate", ZonedDateTime.parse(orderFilters.getStartDate()));
         }

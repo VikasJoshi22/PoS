@@ -1,6 +1,7 @@
 package com.increff.pos.api;
 
 import com.increff.pos.dao.DailySalesReportDao;
+import com.increff.pos.model.form.DailySalesReportForm;
 import com.increff.pos.pojo.DailySalesReportPojo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,14 @@ public class DailySalesReportApi {
         reportDao.addDailySalesReport(dailySalesReportPojo);
     }
 
-    public List<DailySalesReportPojo> getDailySalesReport(String startDate, String endDate){
-        ZonedDateTime start = ZonedDateTime.parse(startDate);
-        ZonedDateTime end = ZonedDateTime.parse(endDate);
+    public List<DailySalesReportPojo> getDailySalesReport(DailySalesReportForm filters){
+        ZonedDateTime start = ZonedDateTime.parse(filters.getStartDate());
+        ZonedDateTime end = ZonedDateTime.parse(filters.getEndDate());
 
-        return reportDao.getDailySalesReport(ZonedDateTime.parse(startDate), ZonedDateTime.parse(endDate));
+        return reportDao.getDailySalesReport(start, end, filters.getPage(), filters.getSize());
+    }
+
+    public Long getTotalCount(ZonedDateTime startDate, ZonedDateTime endDate) {
+        return reportDao.getTotalCount(startDate, endDate);
     }
 }

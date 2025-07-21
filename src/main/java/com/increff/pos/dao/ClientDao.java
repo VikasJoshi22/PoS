@@ -43,7 +43,7 @@ public class ClientDao {
     public void update(Integer id, String name) {
         Query query = em.createQuery(update);
         query.setParameter("id", id);
-        query.setParameter("name", name.toLowerCase());
+        query.setParameter("name", name);
         query.executeUpdate();
     }
 

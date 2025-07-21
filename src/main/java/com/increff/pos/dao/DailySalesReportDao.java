@@ -14,6 +14,7 @@ import java.util.List;
 @Repository
 public class DailySalesReportDao {
     private static final String getDailySalesReportQuery = "select p from DailySalesReportPojo p where p.dateTime>=:startDate and p.dateTime<=:endDate";
+    private static final String getTotalCountQuery = "select count(p) from DailySalesReportPojo p where p.dateTime between :startDate and :endDate";
 
     @PersistenceContext
     private EntityManager em;
@@ -22,10 +23,20 @@ public class DailySalesReportDao {
         em.persist(dailySalesReportPojo);
     }
 
-    public List<DailySalesReportPojo> getDailySalesReport(ZonedDateTime startDate, ZonedDateTime endDate){
+    public List<DailySalesReportPojo> getDailySalesReport(ZonedDateTime startDate, ZonedDateTime endDate, Integer page, Integer size){
         Query query = em.createQuery(getDailySalesReportQuery);
+        query.setFirstResult(page*size);
+        query.setMaxResults(size);
         query.setParameter("startDate", startDate);
         query.setParameter("endDate", endDate);
         return query.getResultList();
+    }
+
+
+    public Long getTotalCount(ZonedDateTime startDate, ZonedDateTime endDate) {
+        Query query = em.createQuery(getTotalCountQuery);
+        query.setParameter("startDate", startDate);
+        query.setParameter("endDate", endDate);
+        return (Long) query.getSingleResult();
     }
 }

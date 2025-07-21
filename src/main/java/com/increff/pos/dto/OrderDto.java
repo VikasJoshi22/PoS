@@ -90,16 +90,6 @@ public class OrderDto {
         return orderData;
     }
 
-//    public List<OrderData> getAllOrderDetails() throws ApiException {
-//        List<OrderData> orderDataList = new ArrayList<>();
-//        List<OrderPojo> orderPojoList = orderFlow.getAllOrders();
-//        for(OrderPojo orderPojo: orderPojoList){
-//            OrderData orderData = getOrderDetails(orderPojo.getId());
-//            orderDataList.add(orderData);
-//        }
-//        return orderDataList;
-//    }
-
     public void makeOrderInvoiced(Integer id) throws ApiException {
         orderApi.makeOrderInvoiced(id);
     }

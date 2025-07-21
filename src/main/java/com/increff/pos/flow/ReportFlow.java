@@ -2,6 +2,7 @@ package com.increff.pos.flow;
 
 import com.increff.pos.api.*;
 import com.increff.pos.model.data.SalesReportData;
+import com.increff.pos.model.form.DailySalesReportForm;
 import com.increff.pos.model.form.SalesReportForm;
 import com.increff.pos.pojo.*;
 import com.increff.pos.utils.ApiException;
@@ -34,7 +35,12 @@ public class ReportFlow {
         ZonedDateTime startDate = dateTime.minusDays(1).with(LocalTime.of(0,0,0));
         ZonedDateTime endDate = dateTime.minusDays(1).with(LocalTime.of(23,59,59));
 
-        List<DailySalesReportPojo> dailySalesReportPojoList = dailySalesReportApi.getDailySalesReport(startDate.format(DateTimeFormatter.ISO_DATE_TIME), endDate.format(DateTimeFormatter.ISO_DATE_TIME));
+        DailySalesReportForm dailySalesReportForm = new DailySalesReportForm();
+        dailySalesReportForm.setStartDate(startDate.format(DateTimeFormatter.ISO_DATE_TIME));
+        dailySalesReportForm.setEndDate(endDate.format(DateTimeFormatter.ISO_DATE_TIME));
+        dailySalesReportForm.setPage(0);
+        dailySalesReportForm.setSize(1);
+        List<DailySalesReportPojo> dailySalesReportPojoList = dailySalesReportApi.getDailySalesReport(dailySalesReportForm);
         if(!Objects.isNull(dailySalesReportPojoList) && !dailySalesReportPojoList.isEmpty()){
             // it means that we have already updated the daily sales report
             return;
@@ -68,12 +74,10 @@ public class ReportFlow {
     public List<SalesReportData> getSalesReport(SalesReportForm salesReportForm) throws ApiException {
         List<OrderPojo> orderPojoList = new ArrayList<>();
         try{
-         orderPojoList = orderApi.getBetweenDates(ZonedDateTime.parse(salesReportForm.getStartDate()), ZonedDateTime.parse(salesReportForm.getEndDate()));
+            orderPojoList = orderApi.getBetweenDates(ZonedDateTime.parse(salesReportForm.getStartDate()), ZonedDateTime.parse(salesReportForm.getEndDate()));
         } catch (Exception e){
             throw new ApiException("error while getting orderPojoList");
         }
-
-
 
         // storing revenue and quantity of each product in map
         Map<Integer, Double> productRevenueMap = new HashMap<>();
