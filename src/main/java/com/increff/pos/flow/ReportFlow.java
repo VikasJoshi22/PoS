@@ -66,7 +66,6 @@ public class ReportFlow {
     }
 
     public List<SalesReportData> getSalesReport(SalesReportForm salesReportForm) throws ApiException {
-        // TODO: check which time we are getting with dates, error is possible based on that;
         List<OrderPojo> orderPojoList = new ArrayList<>();
         try{
          orderPojoList = orderApi.getBetweenDates(ZonedDateTime.parse(salesReportForm.getStartDate()), ZonedDateTime.parse(salesReportForm.getEndDate()));
