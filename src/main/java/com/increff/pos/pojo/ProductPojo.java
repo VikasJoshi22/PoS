@@ -27,7 +27,7 @@ public class ProductPojo {
     @Column(nullable = false)
     private Double mrp;
 
-    @Column
+    @Column(nullable = false)
     private String imageUrl;
 
 }

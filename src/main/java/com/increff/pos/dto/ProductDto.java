@@ -27,15 +27,14 @@ public class ProductDto {
     }
 
     public List<ProductData> getAll(Integer page, Integer size, String keyword) throws ApiException{
-        List<ProductData> productDataList = new ArrayList<>();
         List<ProductPojo> productPojoList = productApi.getAll(page, size, keyword);
 
         // converting ProductPojoList to ProductDataList
+        List<ProductData> productDataList = new ArrayList<>();
         for(ProductPojo productPojo: productPojoList){
             ProductData productData = convert(productPojo);
             productDataList.add(productData);
         }
-
         return productDataList;
     }
 
@@ -46,11 +45,10 @@ public class ProductDto {
         productFlow.update(id, productPojo);
     }
 
-    public List<OperationResponse<ProductForm>> batchAdd(List<ProductForm> productFormList) throws ApiException{
+    public List<OperationResponse<ProductForm>> batchAdd(List<ProductForm> productFormList){
         List<ProductPojo> productPojoList = new ArrayList<>();
         List<OperationResponse<ProductForm>> operationResponseList = new ArrayList<>();
 
-        Set<String> barcodes = new HashSet<>();
         boolean errorOccured = false;
         for(ProductForm productForm: productFormList){
             OperationResponse<ProductForm> operationResponse = new OperationResponse<>();
@@ -59,32 +57,26 @@ public class ProductDto {
             try{
                 DtoHelper.normalizeProductForm(productForm);
                 DtoHelper.validateProductForm(productForm);
+                ProductPojo productPojo = convert(productForm);
+                productPojoList.add(productPojo);
             } catch (ApiException e){
-                //pushing error to error list
                 errorOccured = true;
                 operationResponse.setMessage(e.getMessage());
             }
-            ProductPojo productPojo = convert(productForm);
-            productPojoList.add(productPojo);
+
             operationResponseList.add(operationResponse);
         }
-
         if(errorOccured){
             return operationResponseList;
-        }else {
-            operationResponseList.clear();
         }
+
         List<OperationResponse<ProductPojo>> operationResponses = productFlow.batchAdd(productPojoList);
-
-        // converting errorResponse of ProductPojo to ProductForm
+        int i=0;
         for(OperationResponse<ProductPojo> operationResponse: operationResponses){
-            ProductForm productForm = DtoHelper.convertProductPojoToProductForm(operationResponse.getData());
-            productForm.setClientName(productFlow.getClientById(operationResponse.getData().getClientId()).getName());
-
-            OperationResponse<ProductForm> operationProductForm = new OperationResponse<>();
-            operationProductForm.setMessage(operationResponse.getMessage());
-            operationProductForm.setData(productForm);
-            operationResponseList.add(operationProductForm);
+            if(!operationResponse.getMessage().equals("No error")){
+                operationResponseList.get(i).setMessage(operationResponse.getMessage());
+            }
+            i++;
         }
         return operationResponseList;
     }
@@ -106,6 +98,10 @@ public class ProductDto {
         return productApi.getTotalCount();
     }
 
+    public List<String> searchByBarcode(Integer page, Integer size, String barcode) {
+        return productApi.searchByBarcode(page, size, barcode);
+    }
+
 
     private ProductData convert(ProductPojo productPojo) throws ApiException{
         ProductData productData = DtoHelper.convertProductPojoToProductData(productPojo);
@@ -119,4 +115,5 @@ public class ProductDto {
         productPojo.setClientId(productFlow.getClientByName(productForm.getClientName()).getId());
         return productPojo;
     }
+
 }

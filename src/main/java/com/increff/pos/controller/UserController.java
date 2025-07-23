@@ -27,7 +27,7 @@ public class UserController {
 
     @RequestMapping(path = "/api/user-info", method = RequestMethod.GET)
     public ResponseEntity<?> getUserInfo(Authentication authentication) {
-        if (authentication != null && !Objects.isNull(authentication.getPrincipal())) {
+        if (!Objects.isNull(authentication) && !Objects.isNull(authentication.getPrincipal())) {
             return ResponseEntity.ok(authentication.getPrincipal()); // or custom user object
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();

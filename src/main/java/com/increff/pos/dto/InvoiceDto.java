@@ -1,5 +1,6 @@
 package com.increff.pos.dto;
 
+import com.increff.pos.client.InvoiceClient;
 import com.increff.pos.flow.InvoiceFlow;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,8 @@ import java.util.Base64;
 public class InvoiceDto {
     @Autowired
     private InvoiceFlow invoiceFlow;
-    private final RestTemplate restTemplate = new RestTemplate();
+    @Autowired
+    private InvoiceClient invoiceClient;
 
     public void generateInvoice(Integer orderId, HttpServletResponse response) throws ApiException {
         String base64Pdf = invoiceFlow.generateInvoice(orderId);
@@ -32,8 +34,7 @@ public class InvoiceDto {
     }
 
     public void downloadInvoice(Integer orderId, HttpServletResponse response) throws ApiException{
-        String url = "http://localhost:8000/invoice_app/api/invoices/download/"+orderId;
-        String base64Pdf = restTemplate.getForObject(url, String.class);
+        String base64Pdf = invoiceClient.downloadInvoice(orderId);
         byte[] pdfBytes = Base64.getDecoder().decode(base64Pdf);
         try {
             response.setContentType("application/pdf");

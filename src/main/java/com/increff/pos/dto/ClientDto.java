@@ -27,14 +27,7 @@ public class ClientDto {
 
     public List<ClientData> getAll(Integer page, Integer size) {
         List<ClientPojo> clientPojoList = clientApi.getAll(page, size);
-        List<ClientData> clientDataList = new ArrayList<>();
-
-        //Converting clientPojoList To ClientDataList;
-        for (ClientPojo clientPojo : clientPojoList) {
-            ClientData clientData = DtoHelper.convertClientPojoToClientData(clientPojo);
-            clientDataList.add(clientData);
-        }
-        return clientDataList;
+        return DtoHelper.convertClientPojoListToClientDataList(clientPojoList);
     }
 
     public void delete(Integer id) throws ApiException {
@@ -54,5 +47,9 @@ public class ClientDto {
 
     public Long getTotalCount(){
         return clientApi.getTotalCount();
+    }
+
+    public List<String> searchByName(Integer page, Integer size, String name) {
+        return clientApi.searchByName(page, size, name);
     }
 }

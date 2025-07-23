@@ -23,7 +23,7 @@ public class InventoryDto {
     private InventoryFlow inventoryFlow;
 
     public void add(InventoryForm inventoryForm) throws ApiException {
-        inventoryForm.setBarcode(inventoryForm.getBarcode().toLowerCase().trim());
+        DtoHelper.normalizeInventoryForm(inventoryForm);
         DtoHelper.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = convert(inventoryForm);
         inventoryApi.add(inventoryPojo);
@@ -38,8 +38,8 @@ public class InventoryDto {
             OperationResponse<InventoryForm> operationResponse = new OperationResponse<>();
             operationResponse.setData(inventoryForm);
             operationResponse.setMessage("No error");
-
             try{
+                DtoHelper.normalizeInventoryForm(inventoryForm);
                 DtoHelper.validateInventoryForm(inventoryForm);
                 InventoryPojo inventoryPojo = convert(inventoryForm);
                 inventoryPojoList.add(inventoryPojo);

@@ -86,4 +86,7 @@ public class ProductApi {
     }
 
 
+    public List<String> searchByBarcode(Integer page, Integer size, String barcode) {
+        return productDao.searchByBarcode(page, size, barcode);
+    }
 }

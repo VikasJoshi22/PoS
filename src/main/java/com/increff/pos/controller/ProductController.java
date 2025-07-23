@@ -62,4 +62,10 @@ public class ProductController {
         return productDto.getTotalCount();
     }
 
+    @ApiOperation("search by barcode")
+    @RequestMapping(path = "/search-by-barcode", method = RequestMethod.GET)
+    public List<String> searchByBarcode(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String barcode){
+        return productDto.searchByBarcode(page, size, barcode);
+    }
+
 }

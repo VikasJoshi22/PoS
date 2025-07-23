@@ -1,5 +1,6 @@
 package com.increff.pos.flow;
 
+import com.increff.pos.client.InvoiceClient;
 import com.increff.pos.model.data.InvoiceData;
 import com.increff.pos.model.data.InvoiceItemData;
 import com.increff.pos.api.OrderApi;
@@ -34,12 +35,14 @@ public class InvoiceFlow {
     private OrderItemApi orderItemApi;
     @Autowired
     private ProductApi productApi;
+    @Autowired
+    private InvoiceClient invoiceClient;
+
     private final FopFactory fopFactory = FopFactory.newInstance(new File(".").toURI());
-    private final RestTemplate restTemplate = new RestTemplate();
 
     public String generateInvoice(Integer orderId) throws ApiException {
         OrderPojo orderPojo = orderApi.getById(orderId);
-        if (orderPojo == null) {
+        if (Objects.isNull(orderPojo)) {
             throw new ApiException("Order doesn't exist.\n");
         }
         if(orderPojo.getStatus().equals("invoiced")){
@@ -74,9 +77,6 @@ public class InvoiceFlow {
         invoiceData.setOrderDateTime(orderPojo.getDateTime().format(formatter));
         invoiceData.setInvoiceDateTime(ZonedDateTime.now().format(formatter));
 
-        String url = "http://localhost:8000/invoice_app/api/invoices/generate-invoice";
-        String base64Pdf = restTemplate.postForObject(url, invoiceData, String.class);
-
-        return base64Pdf;
+        return invoiceClient.generateInvoice(invoiceData);
     }
 }

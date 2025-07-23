@@ -51,4 +51,9 @@ public class ClientController {
     public Long getTotalCount(){
         return clientDto.getTotalCount();
     }
+
+    @RequestMapping(path = "/search-by-name")
+    public List<String> searchByName(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String name){
+        return clientDto.searchByName(page, size, name);
+    }
 }

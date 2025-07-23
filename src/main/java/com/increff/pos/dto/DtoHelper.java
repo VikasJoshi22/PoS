@@ -1,17 +1,16 @@
 package com.increff.pos.dto;
 
 import com.increff.pos.model.data.*;
-import com.increff.pos.model.form.ClientForm;
-import com.increff.pos.model.form.InventoryForm;
-import com.increff.pos.model.form.OrderForm;
-import com.increff.pos.model.form.ProductForm;
+import com.increff.pos.model.form.*;
 import com.increff.pos.pojo.*;
 import com.increff.pos.utils.ApiException;
 import com.increff.pos.utils.Constants;
+import com.sun.xml.bind.v2.runtime.reflect.opt.Const;
 
 import java.text.DecimalFormat;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
+import java.util.*;
 
 public class DtoHelper {
 
@@ -104,10 +103,12 @@ public class DtoHelper {
             throw new ApiException("Barcode should not exceed "+ Constants.MAX_LENGTH+" letters");
         } else if (productForm.getName().length() > Constants.MAX_LENGTH) {
             throw new ApiException("Product name should not exceed "+ Constants.MAX_LENGTH+" letters");
-        } else if (productForm.getImageUrl().length() > 500) {
-            throw new ApiException("Barcode should not exceed 500 letters");
+        } else if (productForm.getImageUrl().length() > Constants.MAX_URL_LENGTH) {
+            throw new ApiException("Barcode should not exceed "+Constants.MAX_URL_LENGTH+" letters");
         } else if (productForm.getMrp() <= 0.0) {
             throw new ApiException("mrp should be greater then 0");
+        } else if (productForm.getMrp() > Constants.MAX_MRP) {
+            throw new ApiException("mrp should not exceed ₹"+Constants.MAX_MRP);
         }
     }
 
@@ -122,8 +123,10 @@ public class DtoHelper {
     public static void validateInventoryForm(InventoryForm inventoryForm) throws ApiException{
         if(inventoryForm.getQuantity() <= 0){
             throw new ApiException("Quantity should be greater than 0");
+        } else if (inventoryForm.getQuantity() > Constants.MAX_INVENTORY) {
+            throw new ApiException("Quantity should not exceed "+Constants.MAX_INVENTORY);
         } else if(inventoryForm.getBarcode().length() > Constants.MAX_LENGTH){
-            throw new ApiException("barcode should not be greater then 50 letters");
+            throw new ApiException("barcode should not be greater then "+Constants.MAX_LENGTH+" letters");
         }
     }
 
@@ -134,6 +137,8 @@ public class DtoHelper {
     public static void validateOrderForm(OrderForm orderForm) throws ApiException {
         if(orderForm.getQuantity() <= 0){
             throw new ApiException("Quantity should be greater than 0.");
+        } else if (orderForm.getQuantity() > Constants.MAX_INVENTORY) {
+            throw new ApiException("Quantity should not exceed "+ Constants.MAX_INVENTORY);
         } else if (orderForm.getSellingPrice() <= 0) {
             throw new ApiException("Selling Price should be greater than 0.");
         } else if (orderForm.getBarcode().length() > Constants.MAX_LENGTH) {
@@ -159,5 +164,99 @@ public class DtoHelper {
         dailySalesReportData.setInvoicedItemsCount(dailySalesReportPojo.getInvoicedItemsCount());
         dailySalesReportData.setInvoicedOrdersCount(dailySalesReportPojo.getInvoicedOrdersCount());
         return dailySalesReportData;
+    }
+
+    public static List<ClientData> convertClientPojoListToClientDataList(List<ClientPojo> clientPojoList) {
+        List<ClientData> clientDataList = new ArrayList<>();
+        for (ClientPojo clientPojo : clientPojoList) {
+            ClientData clientData = convertClientPojoToClientData(clientPojo);
+            clientDataList.add(clientData);
+        }
+        return clientDataList;
+    }
+
+    public static void normalizeInventoryForm(InventoryForm inventoryForm) {
+        inventoryForm.setBarcode(inventoryForm.getBarcode().trim().toLowerCase());
+    }
+
+    public static List<OrderItemPojo> convertOrderFormListToOrderItemPojoList(List<OrderForm> orderFormList) {
+        List<OrderItemPojo> orderItemPojoList = new ArrayList<>();
+        for(OrderForm orderForm: orderFormList){
+            normalizeOrderForm(orderForm);
+            orderItemPojoList.add(convertOrderFormToOrderItemPojo(orderForm));
+        }
+        return orderItemPojoList;
+    }
+
+    public static List<OrderError> validateOrderFormList(List<OrderForm> orderFormList) {
+        List<OrderError> orderErrorList = new ArrayList<>();
+        Set<String> barcodes = new HashSet<>();
+        int index = 0;
+        for(OrderForm orderForm: orderFormList) {
+            try{
+                if(barcodes.contains(orderForm.getBarcode())){
+                    throw new ApiException("this product has already been added to this order");
+                }
+                barcodes.add(orderForm.getBarcode());
+                validateOrderForm(orderForm);
+            }catch (ApiException apiException){
+                OrderError orderError = new OrderError();
+                orderError.setMessage(apiException.getMessage());
+                orderError.setIndex(index);
+                orderError.setBarcode(orderForm.getBarcode());
+                orderErrorList.add(orderError);
+            }
+            index++;
+        }
+        return orderErrorList;
+    }
+
+    public static List<OrderItemData> convertOrderItemPojoListToOrderItemDataList(List<OrderItemPojo> orderItemPojoList) {
+        List<OrderItemData> orderItemDataList = new ArrayList<>();
+        for(OrderItemPojo orderItemPojo: orderItemPojoList){
+            OrderItemData orderItemData = convertOrderItemPojoToOrderItemData(orderItemPojo);
+            orderItemDataList.add(orderItemData);
+        }
+        return orderItemDataList;
+    }
+
+    public static OrderData convertToOrderData(OrderPojo orderPojo, List<OrderItemData> orderItemDataList) {
+        OrderData orderData = new OrderData();
+        orderData.setId(orderPojo.getId());
+        orderData.setStatus(orderPojo.getStatus());
+        ZonedDateTime dateTime = orderPojo.getDateTime();
+        orderData.setDateTime(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        orderData.setOrderItems(orderItemDataList);
+        return orderData;
+    }
+
+    public static List<DailySalesReportData> convertDailySalesReportPojoListToDataList(List<DailySalesReportPojo> dailySalesReportPojoList) {
+        List<DailySalesReportData> dailySalesReportDataList = new ArrayList<>();
+        for(DailySalesReportPojo dailySalesReportPojo: dailySalesReportPojoList){
+            DailySalesReportData dailySalesReportData = DtoHelper.convertDailySalesReportPojoToData(dailySalesReportPojo);
+            dailySalesReportDataList.add(dailySalesReportData);
+        }
+        return dailySalesReportDataList;
+    }
+
+    public static void normalizeSalesReportForm(SalesReportForm salesReportForm) {
+        salesReportForm.setClient(salesReportForm.getClient().toLowerCase());
+        salesReportForm.setProductBarcode(salesReportForm.getProductBarcode().toLowerCase());
+    }
+
+    public static ZonedDateTime parseStartDate(String startDate) {
+        if(startDate.isEmpty()){
+            return ZonedDateTime.parse(Constants.MIN_DATE);
+        } else {
+            return ZonedDateTime.parse(startDate);
+        }
+    }
+
+    public static ZonedDateTime parseEndDate(String endDate) {
+        if(endDate.isEmpty()){
+            return ZonedDateTime.now();
+        } else {
+            return ZonedDateTime.parse(endDate);
+        }
     }
 }

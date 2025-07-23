@@ -6,12 +6,14 @@ import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional(rollbackFor = ApiException.class)
 public class OrderApi {
     @Autowired
     private OrderDao orderDao;

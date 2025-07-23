@@ -1,6 +1,7 @@
 package com.increff.pos.flow;
 
 import com.increff.pos.api.*;
+import com.increff.pos.client.InvoiceClient;
 import com.increff.pos.model.data.SalesReportData;
 import com.increff.pos.model.form.DailySalesReportForm;
 import com.increff.pos.model.form.SalesReportForm;
@@ -28,6 +29,8 @@ public class ReportFlow {
     private ProductApi productApi;
     @Autowired
     private ClientApi clientApi;
+    @Autowired
+    private InvoiceClient invoiceClient;
 
     public void updateDailySalesReport(){
         // fetching orders of the day
@@ -46,21 +49,20 @@ public class ReportFlow {
             return;
         }
 
-        List<OrderPojo> orderPojoList =  orderApi.getBetweenDates(startDate, endDate);
+//        List<OrderPojo> orderPojoList =  orderApi.getBetweenDates(startDate, endDate);
+        List<Integer> orderIdList = invoiceClient.getInvoiceBetweenDates(startDate, endDate);
 
 
         int invoicedOrderCount = 0;
         int invoicedItemsCount = 0;
         Double totalRevenue = 0.0;
-        for(OrderPojo orderPojo: orderPojoList){
+        for(Integer orderId: orderIdList){
             //fetching orderItems
-            List<OrderItemPojo> orderItemPojoList = orderItemApi.getByOrderId(orderPojo.getId());
-            if(orderPojo.isInvoiced()){
-                invoicedOrderCount++;
-                invoicedItemsCount+=orderItemPojoList.size();
-                for(OrderItemPojo orderItemPojo: orderItemPojoList){
-                    totalRevenue += (orderItemPojo.getSellingPrice()*orderItemPojo.getQuantity());
-                }
+            List<OrderItemPojo> orderItemPojoList = orderItemApi.getByOrderId(orderId);
+            invoicedOrderCount++;
+            invoicedItemsCount+=orderItemPojoList.size();
+            for(OrderItemPojo orderItemPojo: orderItemPojoList){
+                totalRevenue += (orderItemPojo.getSellingPrice()*orderItemPojo.getQuantity());
             }
         }
         DailySalesReportPojo dailySalesReportPojo = new DailySalesReportPojo();

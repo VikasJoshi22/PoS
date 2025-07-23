@@ -1,10 +1,12 @@
 package com.increff.pos.spring;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.PropertySource;
-import org.springframework.context.annotation.PropertySources;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.springframework.context.annotation.*;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.client.RestTemplate;
+
+import javax.sql.DataSource;
 
 
 @Configuration
@@ -14,5 +16,15 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         @PropertySource(value = "file:./pos.properties", ignoreResourceNotFound = true)
 })
 public class SpringConfig {
+
+    @Bean(name = "restTemplate")
+    public RestTemplate getRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean(name = "bCryptPasswordEncoder")
+    public BCryptPasswordEncoder getBCryptPasswordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
 
 }

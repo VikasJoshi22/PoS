@@ -3,6 +3,7 @@ package com.increff.pos.controller;
 import com.increff.pos.api.UserApi;
 import com.increff.pos.model.form.LoginForm;
 import com.increff.pos.pojo.UserPojo;
+import com.increff.pos.spring.ApplicationProperties;
 import com.increff.pos.utils.ApiException;
 import com.increff.pos.utils.SecurityUtil;
 import com.increff.pos.utils.UserPrincipal;
@@ -29,11 +30,10 @@ import java.util.Objects;
 public class LoginController {
     @Autowired
     private UserApi userApi;
-
-    @Value("${supervisor.email}")
-    private String supervisorEmail;
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+    @Autowired
+    private ApplicationProperties properties;
+    @Autowired
+    private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @ApiOperation("login a user")
     @RequestMapping(path = "/session/login", method = RequestMethod.POST)
@@ -45,7 +45,7 @@ public class LoginController {
         }
 
         // Create authentication object
-        Authentication authentication = convert(userPojo, supervisorEmail);
+        Authentication authentication = convert(userPojo, properties.getSupervisorEmail());
         // Create new session
         HttpSession session = request.getSession(true);
         // Attach Spring SecurityContext to this new session

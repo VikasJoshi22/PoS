@@ -14,10 +14,10 @@ import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class OrderDto {
@@ -25,69 +25,27 @@ public class OrderDto {
     private OrderApi orderApi;
 
     @Autowired
-    private ProductDao productDao;
-
-    @Autowired
     private OrderFlow orderFlow;
 
     public ErrorData<OrderError> create(List<OrderForm> orderFormList){
 
-        List<OrderError> orderErrorList = new ArrayList<>();
-        List<OrderItemPojo> orderItemPojoList = new ArrayList<>();
-        List<String> barcodeList = new ArrayList<>();
-
-        //checking for duplicate barcodes in input
-        Set<String> barcodes = new HashSet<>();
-
-        int index = 0;
-        for(OrderForm orderForm: orderFormList) {
-
-            try{
-                orderItemPojoList.add(DtoHelper.convertOrderFormToOrderItemPojo(orderForm));
-                barcodeList.add(orderForm.getBarcode());
-
-                //checking if barcode already exists
-                if(barcodes.contains(orderForm.getBarcode())){
-                    throw new ApiException("this product has already been added to this order");
-                }
-                barcodes.add(orderForm.getBarcode());
-                DtoHelper.normalizeOrderForm(orderForm);
-                DtoHelper.validateOrderForm(orderForm);
-            }catch (ApiException apiException){
-                OrderError orderError = new OrderError();
-                orderError.setMessage(apiException.getMessage());
-                orderError.setIndex(index);
-                orderError.setBarcode(orderForm.getBarcode());
-
-                orderErrorList.add(orderError);
-            }
-            index++;
+        List<OrderError> orderErrorList = DtoHelper.validateOrderFormList(orderFormList);
+        List<OrderItemPojo> orderItemPojoList = DtoHelper.convertOrderFormListToOrderItemPojoList(orderFormList);
+        List<String> barcodeList = orderFormList.stream().map(OrderForm::getBarcode).collect(Collectors.toList());
+        if(!orderErrorList.isEmpty()){
+            ErrorData<OrderError> errorData = new ErrorData<>();
+            errorData.setErrorList(orderErrorList);
+            return errorData;
         }
-
         ErrorData<OrderError> orderErrorData = orderFlow.create(orderItemPojoList, barcodeList);
-        orderErrorList.addAll(orderErrorData.getErrorList());
-        orderErrorData.setErrorList(orderErrorList);
         return orderErrorData;
     }
 
     public OrderData getOrderDetails(Integer orderId) throws ApiException {
-        OrderData orderData = new OrderData();
-
         OrderPojo orderPojo = orderFlow.getOrderById(orderId);
         List<OrderItemPojo> orderItemPojoList = orderFlow.getOrderItemsByOrderId(orderId);
-        List<OrderItemData> orderItemDataList = new ArrayList<>();
-        for(OrderItemPojo orderItemPojo: orderItemPojoList){
-            OrderItemData orderItemData = DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo);
-            orderItemDataList.add(orderItemData);
-        }
-
-        //making OrderData out of OrderPojo and OrderItemPojo
-        orderData.setId(orderId);
-        orderData.setStatus(orderPojo.getStatus());
-        ZonedDateTime dateTime = orderPojo.getDateTime();
-        orderData.setDateTime(dateTime.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
-        orderData.setOrderItems(orderItemDataList);
-        return orderData;
+        List<OrderItemData> orderItemDataList = DtoHelper.convertOrderItemPojoListToOrderItemDataList(orderItemPojoList);
+        return DtoHelper.convertToOrderData(orderPojo, orderItemDataList);
     }
 
     public void makeOrderInvoiced(Integer id) throws ApiException {
@@ -98,18 +56,9 @@ public class OrderDto {
         List<OrderPojo> orderPojoList = orderFlow.getAllOrders(orderFilters);
         List<OrderData> orderDataList = new ArrayList<>();
         for(OrderPojo orderPojo: orderPojoList){
-            OrderData orderData = new OrderData();
-            orderData.setId(orderPojo.getId());
-            orderData.setDateTime(orderPojo.getDateTime().format(DateTimeFormatter.ISO_DATE_TIME));
-            orderData.setStatus(orderPojo.getStatus());
-
             List<OrderItemPojo> orderItemPojoList = orderFlow.getOrderItemsByOrderId(orderPojo.getId());
-            List<OrderItemData> orderItemDataList = new ArrayList<>();
-            for(OrderItemPojo orderItemPojo: orderItemPojoList){
-                orderItemDataList.add(DtoHelper.convertOrderItemPojoToOrderItemData(orderItemPojo));
-            }
-            orderData.setOrderItems(orderItemDataList);
-            orderDataList.add(orderData);
+            List<OrderItemData> orderItemDataList = DtoHelper.convertOrderItemPojoListToOrderItemDataList(orderItemPojoList);
+            orderDataList.add(DtoHelper.convertToOrderData(orderPojo, orderItemDataList));
         }
         return orderDataList;
     }

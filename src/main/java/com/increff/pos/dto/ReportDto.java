@@ -30,36 +30,18 @@ public class ReportDto {
     }
 
     public List<DailySalesReportData> getDailySalesReport(DailySalesReportForm filters){
-        // converting Pojo to Data
         List<DailySalesReportPojo> dailySalesReportPojoList = reportApi.getDailySalesReport(filters);
-        List<DailySalesReportData> dailySalesReportDataList = new ArrayList<>();
-        for(DailySalesReportPojo dailySalesReportPojo: dailySalesReportPojoList){
-            DailySalesReportData dailySalesReportData = DtoHelper.convertDailySalesReportPojoToData(dailySalesReportPojo);
-            dailySalesReportDataList.add(dailySalesReportData);
-        }
-        return dailySalesReportDataList;
+        return DtoHelper.convertDailySalesReportPojoListToDataList(dailySalesReportPojoList);
     }
 
     public List<SalesReportData> getSalesReport(SalesReportForm salesReportForm) throws ApiException {
-        //normalizing salesReportForm
-        salesReportForm.setClient(salesReportForm.getClient().toLowerCase());
-        salesReportForm.setProductBarcode(salesReportForm.getProductBarcode().toLowerCase());
+        DtoHelper.normalizeSalesReportForm(salesReportForm);
         return reportFlow.getSalesReport(salesReportForm);
     }
 
     public Long getTotalCount(String startDate, String endDate) {
-        ZonedDateTime start;
-        ZonedDateTime end;
-        if(startDate.isEmpty()){
-            start = ZonedDateTime.parse(Constants.MIN_DATE);
-        } else {
-            start = ZonedDateTime.parse(startDate);
-        }
-        if(endDate.isEmpty()){
-            end = ZonedDateTime.now();
-        } else {
-            end = ZonedDateTime.parse(endDate);
-        }
+        ZonedDateTime start = DtoHelper.parseStartDate(startDate);;
+        ZonedDateTime end = DtoHelper.parseEndDate(endDate);
         return reportApi.getTotalCount(start, end);
     }
 }

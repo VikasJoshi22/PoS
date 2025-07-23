@@ -16,6 +16,7 @@ public class ProductDao {
     private static final String getByIdQuery = "select p from ProductPojo p where id=:id";
     private static final String updateQuery = "update ProductPojo p set p.barcode=:barcode, p.clientId=:clientId, p.name=:name, p.mrp=:mrp, p.imageUrl=:imageUrl where id=:id";
     private static final String getTotalCountQuery = "select count(p) from ProductPojo p";
+    private static final String searchByBarcodeQuery = "select p.barcode from ProductPojo p where p.barcode like :barcode";
 
     @PersistenceContext
     private EntityManager em;
@@ -85,4 +86,11 @@ public class ProductDao {
         return (Long) query.getSingleResult();
     }
 
+    public List<String> searchByBarcode(Integer page, Integer size, String barcode) {
+        Query query = em.createQuery(searchByBarcodeQuery);
+        query.setParameter("barcode", "%"+barcode+"%");
+        query.setFirstResult(page*size);
+        query.setMaxResults(size);
+        return query.getResultList();
+    }
 }

@@ -50,7 +50,6 @@ public class ProductFlow {
                 }
                 doesClientExists(productPojo.getClientId());
             } catch (ApiException e){
-                //pushing error to error list
                 errorOccured = true;
                 operationResponse.setMessage(e.getMessage());
             }
@@ -59,8 +58,6 @@ public class ProductFlow {
 
         if(errorOccured){
             return operationResponseList;
-        }else {
-            operationResponseList.clear();
         }
         return productApi.batchAdd(productPojoList);
     }
@@ -77,7 +74,8 @@ public class ProductFlow {
         return clientPojo;
     }
 
-    public InventoryPojo getInventoryByProductId(Integer productId){
+    public InventoryPojo getInventoryByProductId(Integer productId) throws ApiException {
+        ProductPojo productPojo = productApi.getById(productId);
         return inventoryApi.getByProductId(productId);
     }
 

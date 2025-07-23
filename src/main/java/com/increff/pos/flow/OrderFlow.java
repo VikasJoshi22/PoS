@@ -12,7 +12,6 @@ import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
-import com.sun.org.apache.xpath.internal.operations.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,7 +38,6 @@ public class OrderFlow {
     public ErrorData<OrderError> create(List<OrderItemPojo> orderItemPojoList, List<String> barcodeList){
         List<OrderError> orderErrorList = new ArrayList<>();
 
-        // OrderPojo will be same for every item in bulk order
         OrderPojo order = new OrderPojo();
         order.setDateTime(ZonedDateTime.now(ZoneId.of("UTC")));
         Integer orderId = orderApi.addOrder(order);

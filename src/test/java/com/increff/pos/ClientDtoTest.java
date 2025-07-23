@@ -14,13 +14,9 @@ import java.util.List;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import org.springframework.transaction.annotation.Transactional;
-
-@Transactional
 public class ClientDtoTest extends AbstractUnitTest {
     @Autowired
     private ClientDto clientDto;
-
     @Autowired
     private ClientDao clientDao;
 
@@ -43,7 +39,6 @@ public class ClientDtoTest extends AbstractUnitTest {
     }
 
     @Test
-    @Transactional
     public void testUpdate() throws ApiException{
         ClientPojo clientPojo = new ClientPojo();
         clientPojo.setName("client");

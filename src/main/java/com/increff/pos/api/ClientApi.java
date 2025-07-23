@@ -5,11 +5,13 @@ import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
 
 @Service
+@Transactional(rollbackFor = ApiException.class)
 public class ClientApi {
     @Autowired
     private ClientDao clientDao;
@@ -64,5 +66,9 @@ public class ClientApi {
 
     public Long getTotalCount(){
         return clientDao.getTotalCount();
+    }
+
+    public List<String> searchByName(Integer page, Integer size, String name) {
+        return clientDao.searchByName(page, size, name);
     }
 }
