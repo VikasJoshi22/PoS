@@ -65,6 +65,7 @@ public class InventoryDto {
     }
 
     public void edit(InventoryForm inventoryForm) throws ApiException {
+        DtoHelper.normalizeInventoryForm(inventoryForm);
         DtoHelper.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = convert(inventoryForm);
         inventoryApi.edit(inventoryPojo);

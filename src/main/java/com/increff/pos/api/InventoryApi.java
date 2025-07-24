@@ -18,7 +18,7 @@ public class InventoryApi {
 
     public void add(InventoryPojo inventoryPojo){
         // checking if inventory already exists
-        InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
+        InventoryPojo inventory = inventoryDao.getByProductId(inventoryPojo.getProductId());
 
         //if it doesn't exist then we will create a new row, otherwise update the existing inventory
         if(Objects.isNull(inventory)){
@@ -33,7 +33,7 @@ public class InventoryApi {
     public void batchAdd(List<InventoryPojo> inventoryPojoList) {
         for(InventoryPojo inventoryPojo: inventoryPojoList){
             // checking if inventory already exists
-            InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
+            InventoryPojo inventory = inventoryDao.getByProductId(inventoryPojo.getProductId());
             //if it doesn't exist then we will create a new row, otherwise update the existing inventory
             if(Objects.isNull(inventory)){
                 inventoryDao.add(inventoryPojo);
@@ -50,7 +50,7 @@ public class InventoryApi {
     }
 
     public InventoryPojo getByProductId(Integer productId){
-        InventoryPojo inventoryPojo = inventoryDao.getByProduct(productId);
+        InventoryPojo inventoryPojo = inventoryDao.getByProductId(productId);
         if(Objects.isNull(inventoryPojo)){
             inventoryPojo = new InventoryPojo();
             inventoryPojo.setProductId(productId);
@@ -61,12 +61,14 @@ public class InventoryApi {
 
     public void edit(InventoryPojo inventoryPojo) {
         // checking if inventory already exists
-        InventoryPojo inventory = inventoryDao.getByProduct(inventoryPojo.getProductId());
+        InventoryPojo inventory = inventoryDao.getByProductId(inventoryPojo.getProductId());
 
         //if it doesn't exist then we will create a new row, otherwise update the existing inventory
         if(Objects.isNull(inventory)){
             inventoryDao.add(inventoryPojo);
         }else{
+            // Set the ID from existing inventory to ensure proper update
+            inventoryPojo.setId(inventory.getId());
             inventoryDao.update(inventoryPojo);
         }
     }

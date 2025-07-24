@@ -1,7 +1,6 @@
 package com.increff.pos.dao;
 
 import com.increff.pos.pojo.InventoryPojo;
-import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +35,7 @@ public class InventoryDao {
         return query.getResultList();
     }
 
-    public InventoryPojo getByProduct(Integer productId){
+    public InventoryPojo getByProductId(Integer productId){
         Query query = em.createQuery(getByProductQuery);
         query.setParameter("productId", productId);
         try {

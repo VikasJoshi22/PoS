@@ -26,7 +26,6 @@ public class OrderController {
     @Autowired
     private InvoiceDto invoiceDto;
 
-
     @ApiOperation("create bulk order")
     @RequestMapping(path = "/supervisor/create", method = RequestMethod.PUT)
     public ErrorData<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
