@@ -23,7 +23,7 @@ public class InvoiceController {
         invoiceDto.generateInvoice(orderId, response);
     }
 
-    @RequestMapping(path = "download/{orderId}", method = RequestMethod.GET)
+    @RequestMapping(path = "/download/{orderId}", method = RequestMethod.GET)
     public void downloadInvoice(@PathVariable Integer orderId, HttpServletResponse response) throws ApiException {
         invoiceDto.downloadInvoice(orderId, response);
     }

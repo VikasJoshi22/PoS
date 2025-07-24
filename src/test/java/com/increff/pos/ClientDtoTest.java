@@ -69,15 +69,4 @@ public class ClientDtoTest extends AbstractUnitTest {
         assertEquals(1, (long)clientDto.getTotalCount());
     }
 
-    @Test
-    public void testDelete() throws ApiException {
-        ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setName("client");
-        clientDao.add(clientPojo);
-
-        clientDto.delete(clientDao.getByName("client").getId());
-
-        assertEquals(0, (long)clientDto.getTotalCount());
-    }
-
 }

@@ -14,7 +14,7 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/inventories/supervisor")
+@RequestMapping("/api/inventories")
 public class InventoryController {
     @Autowired
     private InventoryDto inventoryDto;
@@ -32,13 +32,13 @@ public class InventoryController {
     }
 
     @ApiOperation("edit inventory of a product")
-    @RequestMapping(path = "/edit", method = RequestMethod.PUT)
+    @RequestMapping(method = RequestMethod.PUT)
     public void edit(@RequestBody InventoryForm inventoryForm) throws ApiException{
         inventoryDto.edit(inventoryForm);
     }
 
     @ApiOperation("get all inventories")
-    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public List<InventoryData> getAll() throws ApiException{
         return inventoryDto.getAll();
     }

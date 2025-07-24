@@ -26,11 +26,6 @@ public class ClientApi {
         return clientPojoList;
     }
 
-    public void delete(Integer id) throws ApiException {
-        checkId(id);
-        clientDao.delete(id);
-    }
-
     public void update(Integer id, String name) throws ApiException{
         checkName(name);
         checkId(id);

@@ -27,13 +27,13 @@ public class OrderController {
     private InvoiceDto invoiceDto;
 
     @ApiOperation("create bulk order")
-    @RequestMapping(path = "/supervisor/create", method = RequestMethod.PUT)
+    @RequestMapping(path = "/create", method = RequestMethod.PUT)
     public ErrorData<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
         return orderDto.create(orderFormList);
     }
 
     @ApiOperation("getting an order details")
-    @RequestMapping(path = "/get/{orderId}", method = RequestMethod.GET)
+    @RequestMapping(path = "/{orderId}", method = RequestMethod.GET)
     public OrderData getOrderDetails(@PathVariable Integer orderId) throws ApiException{
         return orderDto.getOrderDetails(orderId);
     }
@@ -44,7 +44,7 @@ public class OrderController {
     }
 
     @ApiOperation("getting all order's detail.")
-    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public List<OrderData> getAll(@ModelAttribute OrderFilters orderfilters) throws ApiException{
         return orderDto.getAll(orderfilters);
     }

@@ -20,12 +20,12 @@ public class UserController {
     @Autowired
     private UserDto userDto;
 
-    @RequestMapping(path = "/register-user", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public void registerUser(@RequestBody UserForm userForm){
         userDto.registerUser(userForm);
     }
 
-    @RequestMapping(path = "/api/user-info", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<?> getUserInfo(Authentication authentication) {
         if (!Objects.isNull(authentication) && !Objects.isNull(authentication.getPrincipal())) {
             return ResponseEntity.ok(authentication.getPrincipal()); // or custom user object

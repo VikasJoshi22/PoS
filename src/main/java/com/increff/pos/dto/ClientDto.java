@@ -30,10 +30,6 @@ public class ClientDto {
         return DtoHelper.convertClientPojoListToClientDataList(clientPojoList);
     }
 
-    public void delete(Integer id) throws ApiException {
-        clientApi.delete(id);
-    }
-
     public void update(Integer id, ClientForm clientForm) throws ApiException{
         DtoHelper.normalizeClientForm(clientForm);
         DtoHelper.validateClientForm(clientForm);

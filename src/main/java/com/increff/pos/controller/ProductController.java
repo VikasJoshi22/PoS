@@ -14,26 +14,26 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/products/supervisor")
+@RequestMapping("/api/products")
 public class ProductController {
     @Autowired
     private ProductDto productDto;
 
 
     @ApiOperation("add a single product")
-    @RequestMapping(path = "/add", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public void add(@RequestBody ProductForm productForm) throws ApiException {
         productDto.add(productForm);
     }
 
     @ApiOperation("get all client's info")
-    @RequestMapping(path = "/get-all", method = RequestMethod.GET)
+    @RequestMapping(method = RequestMethod.GET)
     public List<ProductData> getAll(@RequestParam Integer page, @RequestParam Integer size, @RequestParam(defaultValue = "") String keyword) throws ApiException{
         return productDto.getAll(page, size, keyword);
     }
 
     @ApiOperation("Update a product's details")
-    @RequestMapping(path = "/update/{id}", method = RequestMethod.PUT)
+    @RequestMapping(path = "/{id}", method = RequestMethod.PUT)
     public void update(@PathVariable Integer id, @RequestBody ProductForm productForm) throws ApiException{
         productDto.update(id, productForm);
     }
@@ -45,7 +45,7 @@ public class ProductController {
     }
 
     @ApiOperation("get by id")
-    @RequestMapping(path = "/get/{id}", method = RequestMethod.GET)
+    @RequestMapping(path = "/get-by-id/{id}", method = RequestMethod.GET)
     public ProductData getById(@PathVariable Integer id) throws ApiException{
         return productDto.getById(id);
     }
@@ -63,9 +63,8 @@ public class ProductController {
     }
 
     @ApiOperation("search by barcode")
-    @RequestMapping(path = "/search-by-barcode", method = RequestMethod.GET)
+    @RequestMapping(path = "/search", method = RequestMethod.GET)
     public List<String> searchByBarcode(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String barcode){
         return productDto.searchByBarcode(page, size, barcode);
     }
-
 }

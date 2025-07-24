@@ -13,7 +13,6 @@ import java.util.List;
 public class ClientDao {
 
     private static final String getAllQuery = "select p from ClientPojo p";
-    private static final String deleteQuery = "delete from ClientPojo p where id=:id";
     private static final String update = "update ClientPojo set name=:name where id=:id";
     private static final String getByIdQuery = "select p from ClientPojo p where id=:id";
     private static final String getByNameQuery = "select p from ClientPojo p where name=:name";
@@ -32,12 +31,6 @@ public class ClientDao {
         query.setFirstResult(page*size);
         query.setMaxResults(size);
         return query.getResultList();
-    }
-
-    public void delete(Integer id) {
-        Query query = em.createQuery(deleteQuery);
-        query.setParameter("id", id);
-        query.executeUpdate();
     }
 
     public void update(Integer id, String name) {
