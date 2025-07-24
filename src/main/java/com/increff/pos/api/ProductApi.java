@@ -26,7 +26,7 @@ public class ProductApi {
     public List<ProductPojo> getAll(Integer page, Integer size, String keyword) throws ApiException {
         Long totalCount = productDao.getTotalCount();
         if(totalCount!=0 && (long) page *size >= totalCount){
-            throw new ApiException("invalid page number");
+            throw new ApiException("Invalid page number");
         }
         return productDao.getAll(page, size, keyword);
     }

@@ -44,7 +44,7 @@ public class ProductFlow {
             operationResponse.setMessage("No error");
             try{
                 if(barcodes.contains(productPojo.getBarcode())){
-                    throw new ApiException("file contain duplicate barcodes");
+                    throw new ApiException("File contain duplicate barcodes");
                 } else {
                     barcodes.add(productPojo.getBarcode());
                 }
@@ -69,7 +69,7 @@ public class ProductFlow {
     public ClientPojo getClientByName(String name) throws ApiException{
         ClientPojo clientPojo = clientApi.getByName(name);
         if(Objects.isNull(clientPojo)){
-            throw new ApiException("client "+name+" doesn't exists.");
+            throw new ApiException("Client "+name+" doesn't exists.");
         }
         return clientPojo;
     }

@@ -12,12 +12,14 @@ import java.util.List;
 
 @Api
 @RestController
-@RequestMapping("/api/clients/supervisor")
+@RequestMapping("/api/clients/supervisor") //TODO: no need to add supervisor in url
 public class ClientController {
 
     @Autowired
     private ClientDto clientDto;
 
+
+//todo: no need to add extra paths, it can overload based on requestMethod
     @ApiOperation("adds a client")
     @RequestMapping(path = "/add", method = RequestMethod.POST)
     public void add(@RequestBody ClientForm client) throws ApiException {
@@ -30,6 +32,7 @@ public class ClientController {
         return clientDto.getAll(page, size);
     }
 
+    // todo: remove delete
     @ApiOperation("Deletes a client")
     @RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
     public void delete (@PathVariable Integer id) throws ApiException{
@@ -52,6 +55,7 @@ public class ClientController {
         return clientDto.getTotalCount();
     }
 
+    // todo: add request method
     @RequestMapping(path = "/search-by-name")
     public List<String> searchByName(@RequestParam Integer page, @RequestParam Integer size, @RequestParam String name){
         return clientDto.searchByName(page, size, name);

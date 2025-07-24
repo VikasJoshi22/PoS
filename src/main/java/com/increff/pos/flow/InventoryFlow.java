@@ -24,7 +24,7 @@ public class InventoryFlow {
     public ProductPojo getProductByBarcode(String barcode) throws ApiException{
         ProductPojo productPojo = productApi.getByBarcode(barcode);
         if(Objects.isNull(productPojo)){
-            throw new ApiException("barcode doesn't exists.");
+            throw new ApiException("Barcode doesn't exists.");
         }
         return productPojo;
     }

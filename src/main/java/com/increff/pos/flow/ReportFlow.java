@@ -78,7 +78,7 @@ public class ReportFlow {
         try{
             orderPojoList = orderApi.getBetweenDates(ZonedDateTime.parse(salesReportForm.getStartDate()), ZonedDateTime.parse(salesReportForm.getEndDate()));
         } catch (Exception e){
-            throw new ApiException("error while getting orderPojoList");
+            throw new ApiException("Error while getting orderPojoList");
         }
 
         // storing revenue and quantity of each product in map
@@ -120,40 +120,12 @@ public class ReportFlow {
             salesReportDataList.add(salesReportData);
         }
 
-        if(!salesReportForm.getProductBarcode().isEmpty()){
-
-            // if both product and client is not null, then we will check if client has the product or not otherwise the list will be empty
-            if(!salesReportForm.getClient().isEmpty()){
-                ProductPojo productPojo = productApi.getByBarcode(salesReportForm.getProductBarcode());
-                if(Objects.isNull(productPojo)){
-                    throw new ApiException("product doesn't exists");
-                }
-                ClientPojo clientPojo = clientApi.getById(productPojo.getClientId());
-                if(!clientPojo.getName().equals( salesReportForm.getClient() )){
-                    throw new ApiException("Client '"+salesReportForm.getClient()+"' doesn't has Product with barcode '"+salesReportForm.getProductBarcode()+"'.");
-                }
+        List<SalesReportData> filteredSalesReportList = new ArrayList<>();
+        for(SalesReportData salesReportData: salesReportDataList){
+            if(salesReportData.getProductBarcode().contains(salesReportForm.getProductBarcode()) && salesReportData.getClient().contains(salesReportForm.getClient())){
+                filteredSalesReportList.add(salesReportData);
             }
-
-            // if product is not null, then we will filter the list based on product. in this case, client doesn't matter
-            List<SalesReportData> filteredSalesReportDataList = new ArrayList<>();
-            for(SalesReportData salesReportData: salesReportDataList){
-                if(salesReportData.getProductBarcode().equals(salesReportForm.getProductBarcode())){
-                    filteredSalesReportDataList.add(salesReportData);
-                }
-            }
-            return filteredSalesReportDataList;
-
-        } else if(!salesReportForm.getClient().isEmpty()){
-            List<SalesReportData> filteredSalesReportDataList = new ArrayList<>();
-            for(SalesReportData salesReportData: salesReportDataList){
-                if(salesReportData.getClient().equals(salesReportForm.getClient())){
-                    filteredSalesReportDataList.add(salesReportData);
-                }
-            }
-            return filteredSalesReportDataList;
         }
-
-        // if control is here, then both product and client is null
-        return salesReportDataList;
+        return filteredSalesReportList;
     }
 }

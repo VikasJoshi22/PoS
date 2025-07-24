@@ -43,10 +43,10 @@ public class InvoiceFlow {
     public String generateInvoice(Integer orderId) throws ApiException {
         OrderPojo orderPojo = orderApi.getById(orderId);
         if (Objects.isNull(orderPojo)) {
-            throw new ApiException("Order doesn't exist.\n");
+            throw new ApiException("Order doesn't exist.");
         }
         if(orderPojo.getStatus().equals("invoiced")){
-            throw new ApiException("invoice is already generated");
+            throw new ApiException("Invoice is already generated");
         }
 
         //changing order status

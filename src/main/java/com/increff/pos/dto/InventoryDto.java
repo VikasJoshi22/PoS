@@ -29,6 +29,7 @@ public class InventoryDto {
         inventoryApi.add(inventoryPojo);
     }
 
+    // todo: can use add method for batchAdd
     public List<OperationResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
         List<InventoryPojo> inventoryPojoList = new ArrayList<>();
         List<OperationResponse<InventoryForm>> operationResponseList = new ArrayList<>();
@@ -74,7 +75,7 @@ public class InventoryDto {
     public InventoryData getByProductId(Integer productId) throws ApiException{
         InventoryPojo inventoryPojo = inventoryApi.getByProductId(productId);
         if(Objects.isNull(inventoryPojo)){
-            throw new ApiException("out of stock");
+            throw new ApiException("Out of stock");
         }
         return convert(inventoryPojo);
     }
@@ -85,6 +86,7 @@ public class InventoryDto {
     }
 
 
+    // todo: fetch barcode from flow first, then pass it to helper for conversion
     private InventoryPojo convert(InventoryForm inventoryForm) throws ApiException{
         InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
         inventoryPojo.setProductId(inventoryFlow.getProductByBarcode(inventoryForm.getBarcode()).getId());

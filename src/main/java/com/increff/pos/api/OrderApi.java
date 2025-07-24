@@ -26,7 +26,7 @@ public class OrderApi {
         Long totalCount = orderDao.getTotalCount(orderFilters);
         if(totalCount!=0 && (long) orderFilters.getPage()*orderFilters.getSize() >= totalCount){
             // not gonna invoked by fronted, most probably.
-            throw new ApiException("invalid page number");
+            throw new ApiException("Invalid page number");
         }
         return orderDao.getAllOrders(orderFilters);
     }
@@ -40,7 +40,7 @@ public class OrderApi {
     public OrderPojo getById(Integer orderId) throws ApiException {
         OrderPojo orderPojo = orderDao.getById(orderId);
         if(Objects.isNull(orderPojo)){
-            throw new ApiException("order with id '"+orderId+"' doesn't exists");
+            throw new ApiException("Order with id '"+orderId+"' doesn't exists");
         }
         return orderPojo;
     }

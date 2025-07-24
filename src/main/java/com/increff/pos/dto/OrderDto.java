@@ -27,6 +27,7 @@ public class OrderDto {
     @Autowired
     private OrderFlow orderFlow;
 
+    // todo: OrderForm's name should be OrderItemForm
     public ErrorData<OrderError> create(List<OrderForm> orderFormList){
 
         List<OrderError> orderErrorList = DtoHelper.validateOrderFormList(orderFormList);

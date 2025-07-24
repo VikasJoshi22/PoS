@@ -40,7 +40,7 @@ public class ClientApi {
     public ClientPojo getById(Integer id) throws ApiException{
         ClientPojo clientPojo = clientDao.getById(id);
         if(Objects.isNull(clientPojo)){
-            throw new ApiException("client id doesn't exists");
+            throw new ApiException("Client id doesn't exists");
         }
         return clientPojo;
     }

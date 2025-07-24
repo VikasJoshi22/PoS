@@ -18,7 +18,7 @@ public class DtoHelper {
 
     public static ClientPojo convertClientFormToClientPojo(ClientForm client){
         ClientPojo c = new ClientPojo();
-        c.setName(client.getName().toLowerCase());
+        c.setName(client.getName());
         return c;
     }
 
@@ -98,7 +98,7 @@ public class DtoHelper {
 
     public static void validateProductForm(ProductForm productForm) throws ApiException{
         if(Objects.isNull(productForm)){
-            throw new ApiException("product should not be null");
+            throw new ApiException("Product should not be null");
         } else if (productForm.getBarcode().length() > Constants.MAX_LENGTH) {
             throw new ApiException("Barcode should not exceed "+ Constants.MAX_LENGTH+" letters");
         } else if (productForm.getName().length() > Constants.MAX_LENGTH) {
@@ -106,9 +106,9 @@ public class DtoHelper {
         } else if (productForm.getImageUrl().length() > Constants.MAX_URL_LENGTH) {
             throw new ApiException("Barcode should not exceed "+Constants.MAX_URL_LENGTH+" letters");
         } else if (productForm.getMrp() <= 0.0) {
-            throw new ApiException("mrp should be greater then 0");
+            throw new ApiException("Mrp should be greater then 0");
         } else if (productForm.getMrp() > Constants.MAX_MRP) {
-            throw new ApiException("mrp should not exceed ₹"+Constants.MAX_MRP);
+            throw new ApiException("Mrp should not exceed ₹"+Constants.MAX_MRP);
         }
     }
 
@@ -126,7 +126,7 @@ public class DtoHelper {
         } else if (inventoryForm.getQuantity() > Constants.MAX_INVENTORY) {
             throw new ApiException("Quantity should not exceed "+Constants.MAX_INVENTORY);
         } else if(inventoryForm.getBarcode().length() > Constants.MAX_LENGTH){
-            throw new ApiException("barcode should not be greater then "+Constants.MAX_LENGTH+" letters");
+            throw new ApiException("Barcode should not be greater then "+Constants.MAX_LENGTH+" letters");
         }
     }
 
@@ -195,7 +195,7 @@ public class DtoHelper {
         for(OrderForm orderForm: orderFormList) {
             try{
                 if(barcodes.contains(orderForm.getBarcode())){
-                    throw new ApiException("this product has already been added to this order");
+                    throw new ApiException("This product has already been added to this order");
                 }
                 barcodes.add(orderForm.getBarcode());
                 validateOrderForm(orderForm);

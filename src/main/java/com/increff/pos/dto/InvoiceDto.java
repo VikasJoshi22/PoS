@@ -44,7 +44,7 @@ public class InvoiceDto {
             out.write(pdfBytes);
             out.flush();
         } catch (Exception e) {
-            throw new ApiException("error while downloading invoice.");
+            throw new ApiException("Error while downloading invoice.");
         }
     }
 }
