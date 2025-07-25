@@ -1,6 +1,7 @@
 package com.increff.pos.dto;
 
 import com.increff.pos.AbstractUnitTest;
+import com.increff.pos.TestHelper;
 import com.increff.pos.dao.ClientDao;
 import com.increff.pos.model.data.ClientData;
 import com.increff.pos.model.form.ClientForm;
@@ -22,8 +23,7 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testAdd() throws ApiException {
-        ClientForm clientForm = new ClientForm();
-        clientForm.setName("   Client    ");
+        ClientForm clientForm = TestHelper.createClientForm("   Client    ");
         clientDto.add(clientForm);
         ClientPojo clientPojo = clientDao.getAll(0, 1).get(0);
         assertEquals(clientForm.getName(), clientPojo.getName());
@@ -31,8 +31,7 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testGetAll(){
-        ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setName("client");
+        ClientPojo clientPojo = TestHelper.createClientPojo("client");
         clientDao.add(clientPojo);
         List<ClientData> clientDataList = clientDto.getAll(0,1);
         assertEquals(clientPojo.getName(), clientDataList.get(0).getName());
@@ -40,12 +39,10 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testUpdate() throws ApiException{
-        ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setName("client");
+        ClientPojo clientPojo = TestHelper.createClientPojo("client");
         clientDao.add(clientPojo);
 
-        ClientForm clientForm = new ClientForm();
-        clientForm.setName("    Abcd   ");
+        ClientForm clientForm = TestHelper.createClientForm("    Abcd   ");
         clientDto.update(clientDao.getByName("client").getId(), clientForm);
 
         assertNotNull(clientDao.getByName("abcd"));
@@ -53,8 +50,7 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testGetById() throws ApiException {
-        ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setName("client");
+        ClientPojo clientPojo = TestHelper.createClientPojo("client");
         clientDao.add(clientPojo);
 
         assertEquals("client", clientDto.getById(clientDao.getByName("client").getId()).getName());
@@ -62,11 +58,19 @@ public class ClientDtoTest extends AbstractUnitTest {
 
     @Test
     public void testGetTotalCount(){
-        ClientPojo clientPojo = new ClientPojo();
-        clientPojo.setName("client");
+        ClientPojo clientPojo = TestHelper.createClientPojo("client");
         clientDao.add(clientPojo);
 
         assertEquals(1, (long)clientDto.getTotalCount());
+    }
+
+    @Test
+    public void testSearchByName(){
+        ClientPojo clientPojo = TestHelper.createClientPojo("client");
+        clientDao.add(clientPojo);
+
+        String actualName = clientDto.searchByName(0,1,"client").get(0);
+        assertEquals("client", actualName);
     }
 
 }

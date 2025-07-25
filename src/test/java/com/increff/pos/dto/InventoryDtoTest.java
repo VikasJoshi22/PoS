@@ -12,6 +12,7 @@ import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
+import io.swagger.annotations.Api;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -54,7 +55,15 @@ public class InventoryDtoTest extends AbstractUnitTest {
     }
 
     @Test
-    public void testBatchAdd() throws ApiException {
+    public void testAddWithInvalidBarcode() {
+        InventoryForm inventoryForm = TestHelper.createInventoryForm("ABC123", 50);
+        assertThrows(ApiException.class, ()->{
+            inventoryDto.add(inventoryForm);
+        });
+    }
+
+    @Test
+    public void testBatchAdd() {
         // Setup: Create client and products
         ClientPojo clientPojo = TestHelper.createClientPojo("test-client");
         clientDao.add(clientPojo);
@@ -161,12 +170,23 @@ public class InventoryDtoTest extends AbstractUnitTest {
         // Test: Try to add inventory with invalid quantity
         InventoryForm inventoryForm = TestHelper.createInventoryForm("ABC123", -10);
 
-        try {
+        assertThrows(ApiException.class, ()->{
             inventoryDto.add(inventoryForm);
-            fail("Should throw ApiException for invalid quantity");
-        } catch (ApiException e) {
-            // Expected exception
-            assertTrue("Error message should contain quantity validation", e.getMessage().contains("Quantity"));
-        }
+        });
+    }
+
+    @Test
+    public void testEdit() throws ApiException {
+        ClientPojo clientPojo = TestHelper.createClientPojo("test-client");
+        clientDao.add(clientPojo);
+        ProductPojo productPojo = TestHelper.createProductPojo("abc123", clientPojo.getId(), "test-product", 100.0, "http://test.com");
+        productDao.add(productPojo);
+        InventoryPojo inventoryPojo = TestHelper.createInventoryPojo(productPojo.getId(), 50);
+        inventoryDao.add(inventoryPojo);
+
+        InventoryForm inventoryForm = TestHelper.createInventoryForm("abc123", 100);
+        inventoryDto.edit(inventoryForm);
+        long actual = inventoryDao.getByProductId(productPojo.getId()).getQuantity();
+        assertEquals(100L, actual);
     }
 } 
