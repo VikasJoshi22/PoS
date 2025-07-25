@@ -1,20 +1,19 @@
 package com.increff.pos.dto;
 
 import com.increff.pos.api.OrderApi;
-import com.increff.pos.dao.ProductDao;
 import com.increff.pos.flow.OrderFlow;
 import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
 import com.increff.pos.model.data.OrderItemData;
 import com.increff.pos.model.form.OrderFilters;
-import com.increff.pos.model.form.OrderForm;
+import com.increff.pos.model.form.OrderItemForm;
 import com.increff.pos.pojo.OrderItemPojo;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
+import com.increff.pos.utils.UtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,12 +26,11 @@ public class OrderDto {
     @Autowired
     private OrderFlow orderFlow;
 
-    // todo: OrderForm's name should be OrderItemForm
-    public ErrorData<OrderError> create(List<OrderForm> orderFormList){
+    public ErrorData<OrderError> create(List<OrderItemForm> orderItemFormList){
 
-        List<OrderError> orderErrorList = DtoHelper.validateOrderFormList(orderFormList);
-        List<OrderItemPojo> orderItemPojoList = DtoHelper.convertOrderFormListToOrderItemPojoList(orderFormList);
-        List<String> barcodeList = orderFormList.stream().map(OrderForm::getBarcode).collect(Collectors.toList());
+        List<OrderError> orderErrorList = UtilMethods.validateOrderFormList(orderItemFormList);
+        List<OrderItemPojo> orderItemPojoList = DtoHelper.convertOrderFormListToOrderItemPojoList(orderItemFormList);
+        List<String> barcodeList = orderItemFormList.stream().map(OrderItemForm::getBarcode).collect(Collectors.toList());
         if(!orderErrorList.isEmpty()){
             ErrorData<OrderError> errorData = new ErrorData<>();
             errorData.setErrorList(orderErrorList);

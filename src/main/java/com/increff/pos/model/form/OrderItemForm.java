@@ -6,7 +6,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class OrderForm {
+public class OrderItemForm {
     @NotNull
     private String barcode;
     @NotNull

@@ -1,7 +1,8 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
+import com.increff.pos.AbstractUnitTest;
+import com.increff.pos.TestHelper;
 import com.increff.pos.dao.DailySalesReportDao;
-import com.increff.pos.dto.ReportDto;
 import com.increff.pos.model.data.DailySalesReportData;
 import com.increff.pos.model.data.SalesReportData;
 import com.increff.pos.model.form.DailySalesReportForm;
@@ -25,19 +26,27 @@ public class ReportDtoTest extends AbstractUnitTest {
     private DailySalesReportDao dailySalesReportDao;
 
     @Test
+    public void testGetTotalCountEmpty() {
+        Long result = reportDto.getTotalCount("", "");
+
+        assertNotNull(result);
+        assertEquals(0L, result.longValue());
+    }
+
+    @Test
     public void testGetDailySalesReport() {
         ZonedDateTime dateTime = ZonedDateTime.now();
         DailySalesReportPojo pojo = TestHelper.createDailySalesReportPojo(dateTime, 5, 10, 1000.0);
         dailySalesReportDao.addDailySalesReport(pojo);
 
         DailySalesReportForm form = TestHelper.createDailySalesReportForm(
-            dateTime.minusDays(1).toString(), 
-            dateTime.plusDays(1).toString(), 
-            0, 
+            dateTime.minusDays(1).toString(),
+            dateTime.plusDays(1).toString(),
+            0,
             10
         );
         List<DailySalesReportData> result = reportDto.getDailySalesReport(form);
-        
+
         assertNotNull(result);
         assertEquals(1, result.size());
         assertEquals(5, result.get(0).getInvoicedOrdersCount().intValue());
@@ -46,13 +55,13 @@ public class ReportDtoTest extends AbstractUnitTest {
     @Test
     public void testGetDailySalesReportEmpty() {
         DailySalesReportForm form = TestHelper.createDailySalesReportForm(
-            ZonedDateTime.now().minusDays(10).toString(), 
-            ZonedDateTime.now().minusDays(5).toString(), 
-            0, 
+            ZonedDateTime.now().minusDays(10).toString(),
+            ZonedDateTime.now().minusDays(5).toString(),
+            0,
             10
         );
         List<DailySalesReportData> result = reportDto.getDailySalesReport(form);
-        
+
         assertNotNull(result);
         assertEquals(0, result.size());
     }
@@ -66,7 +75,7 @@ public class ReportDtoTest extends AbstractUnitTest {
             ""
         );
         List<SalesReportData> result = reportDto.getSalesReport(form);
-        
+
         assertNotNull(result);
     }
 
@@ -77,19 +86,11 @@ public class ReportDtoTest extends AbstractUnitTest {
         dailySalesReportDao.addDailySalesReport(pojo);
 
         Long result = reportDto.getTotalCount(
-            dateTime.minusDays(1).toString(), 
+            dateTime.minusDays(1).toString(),
             dateTime.plusDays(1).toString()
         );
-        
+
         assertNotNull(result);
         assertEquals(1L, result.longValue());
     }
-
-    @Test
-    public void testGetTotalCountEmpty() {
-        Long result = reportDto.getTotalCount("", "");
-        
-        assertNotNull(result);
-        assertEquals(0L, result.longValue());
-    }
-} 
+}

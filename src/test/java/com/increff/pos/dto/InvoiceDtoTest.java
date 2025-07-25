@@ -1,7 +1,6 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
-import com.increff.pos.dto.InvoiceDto;
-import com.increff.pos.utils.ApiException;
+import com.increff.pos.AbstractUnitTest;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 

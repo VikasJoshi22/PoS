@@ -7,6 +7,7 @@ import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.utils.ApiException;
+import com.increff.pos.utils.UtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,13 +24,14 @@ public class InventoryDto {
     private InventoryFlow inventoryFlow;
 
     public void add(InventoryForm inventoryForm) throws ApiException {
-        DtoHelper.normalizeInventoryForm(inventoryForm);
-        DtoHelper.validateInventoryForm(inventoryForm);
+        UtilMethods.normalizeInventoryForm(inventoryForm);
+        UtilMethods.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = convert(inventoryForm);
         inventoryApi.add(inventoryPojo);
     }
 
-    // todo: can use add method for batchAdd
+    // todo: can use add method for batchAdd,
+    // correction: if some error occured, then we can't rollback since we can't use transactional in DTO
     public List<OperationResponse<InventoryForm>> batchAdd(List<InventoryForm> inventoryFormList){
         List<InventoryPojo> inventoryPojoList = new ArrayList<>();
         List<OperationResponse<InventoryForm>> operationResponseList = new ArrayList<>();
@@ -40,8 +42,8 @@ public class InventoryDto {
             operationResponse.setData(inventoryForm);
             operationResponse.setMessage("No error");
             try{
-                DtoHelper.normalizeInventoryForm(inventoryForm);
-                DtoHelper.validateInventoryForm(inventoryForm);
+                UtilMethods.normalizeInventoryForm(inventoryForm);
+                UtilMethods.validateInventoryForm(inventoryForm);
                 InventoryPojo inventoryPojo = convert(inventoryForm);
                 inventoryPojoList.add(inventoryPojo);
             }catch (ApiException e){
@@ -66,8 +68,8 @@ public class InventoryDto {
     }
 
     public void edit(InventoryForm inventoryForm) throws ApiException {
-        DtoHelper.normalizeInventoryForm(inventoryForm);
-        DtoHelper.validateInventoryForm(inventoryForm);
+        UtilMethods.normalizeInventoryForm(inventoryForm);
+        UtilMethods.validateInventoryForm(inventoryForm);
         InventoryPojo inventoryPojo = convert(inventoryForm);
         inventoryApi.edit(inventoryPojo);
     }
@@ -86,17 +88,14 @@ public class InventoryDto {
     }
 
 
-    // todo: fetch barcode from flow first, then pass it to helper for conversion
     private InventoryPojo convert(InventoryForm inventoryForm) throws ApiException{
-        InventoryPojo inventoryPojo = DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm);
-        inventoryPojo.setProductId(inventoryFlow.getProductByBarcode(inventoryForm.getBarcode()).getId());
-        return inventoryPojo;
+        Integer productId = inventoryFlow.getProductByBarcode(inventoryForm.getBarcode()).getId();
+        return DtoHelper.convertInventoryFormToInventoryPojo(inventoryForm, productId);
     }
 
     private InventoryData convert(InventoryPojo inventoryPojo) throws ApiException{
-        InventoryData inventoryData = DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo);
-        inventoryData.setBarcode(inventoryFlow.getProductByProductId(inventoryPojo.getProductId()).getBarcode());
-        return inventoryData;
+        String barcode = inventoryFlow.getProductByProductId(inventoryPojo.getProductId()).getBarcode();
+        return DtoHelper.convertInventoryPojoToInventoryData(inventoryPojo, barcode);
     }
 
 }

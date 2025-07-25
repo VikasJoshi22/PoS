@@ -7,6 +7,7 @@ import com.increff.pos.model.data.ProductData;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
+import com.increff.pos.utils.UtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -20,8 +21,8 @@ public class ProductDto {
     private ProductFlow productFlow;
 
     public void add(ProductForm productForm) throws ApiException{
-        DtoHelper.normalizeProductForm(productForm);
-        DtoHelper.validateProductForm(productForm);
+        UtilMethods.normalizeProductForm(productForm);
+        UtilMethods.validateProductForm(productForm);
         ProductPojo productPojo = convert(productForm);
         productFlow.add(productPojo);
     }
@@ -39,8 +40,8 @@ public class ProductDto {
     }
 
     public void update(Integer id, ProductForm productForm) throws ApiException{
-        DtoHelper.normalizeProductForm(productForm);
-        DtoHelper.validateProductForm(productForm);
+        UtilMethods.normalizeProductForm(productForm);
+        UtilMethods.validateProductForm(productForm);
         ProductPojo productPojo = convert(productForm);
         productFlow.update(id, productPojo);
     }
@@ -55,8 +56,8 @@ public class ProductDto {
             operationResponse.setData(productForm);
             operationResponse.setMessage("No error");
             try{
-                DtoHelper.normalizeProductForm(productForm);
-                DtoHelper.validateProductForm(productForm);
+                UtilMethods.normalizeProductForm(productForm);
+                UtilMethods.validateProductForm(productForm);
                 ProductPojo productPojo = convert(productForm);
                 productPojoList.add(productPojo);
             } catch (ApiException e){
@@ -104,16 +105,14 @@ public class ProductDto {
 
 
     private ProductData convert(ProductPojo productPojo) throws ApiException{
-        ProductData productData = DtoHelper.convertProductPojoToProductData(productPojo);
-        productData.setClientName(productFlow.getClientById(productPojo.getClientId()).getName());
-        productData.setInventory(productFlow.getInventoryByProductId(productPojo.getId()).getQuantity());
-        return productData;
+        String clientName = productFlow.getClientById(productPojo.getClientId()).getName();
+        Integer inventory = productFlow.getInventoryByProductId(productPojo.getId()).getQuantity();
+        return DtoHelper.convertProductPojoToProductData(productPojo, clientName, inventory);
     }
 
     private ProductPojo convert(ProductForm productForm) throws ApiException{
-        ProductPojo productPojo = DtoHelper.convertProductFormToProductPojo(productForm);
-        productPojo.setClientId(productFlow.getClientByName(productForm.getClientName()).getId());
-        return productPojo;
+        Integer clientId = productFlow.getClientByName(productForm.getClientName()).getId();
+        return DtoHelper.convertProductFormToProductPojo(productForm, clientId);
     }
 
 }

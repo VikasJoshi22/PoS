@@ -1,16 +1,17 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
+import com.increff.pos.AbstractUnitTest;
+import com.increff.pos.TestHelper;
 import com.increff.pos.dao.ClientDao;
 import com.increff.pos.dao.InventoryDao;
 import com.increff.pos.dao.OrderDao;
 import com.increff.pos.dao.OrderItemDao;
 import com.increff.pos.dao.ProductDao;
-import com.increff.pos.dto.OrderDto;
 import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
 import com.increff.pos.model.form.OrderFilters;
-import com.increff.pos.model.form.OrderForm;
+import com.increff.pos.model.form.OrderItemForm;
 import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.OrderItemPojo;
@@ -20,7 +21,6 @@ import com.increff.pos.utils.ApiException;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -56,9 +56,9 @@ public class OrderDtoTest extends AbstractUnitTest {
         InventoryPojo inventoryPojo = TestHelper.createInventoryPojo(productPojo.getId(), 50);
         inventoryDao.add(inventoryPojo);
 
-        List<OrderForm> orderForms = TestHelper.createOrderFormList("abc123", 10, 80.0);
+        List<OrderItemForm> orderItemForms = TestHelper.createOrderFormList("abc123", 10, 80.0);
 
-        ErrorData<OrderError> result = orderDto.create(orderForms);
+        ErrorData<OrderError> result = orderDto.create(orderItemForms);
 
         assertNotNull(result);
         assertNotNull(result.getId());
@@ -67,9 +67,9 @@ public class OrderDtoTest extends AbstractUnitTest {
 
     @Test
     public void testCreateWithInvalidBarcode() {
-        List<OrderForm> orderForms = TestHelper.createOrderFormList("invalid-barcode", 10, 80.0);
+        List<OrderItemForm> orderItemForms = TestHelper.createOrderFormList("invalid-barcode", 10, 80.0);
 
-        ErrorData<OrderError> result = orderDto.create(orderForms);
+        ErrorData<OrderError> result = orderDto.create(orderItemForms);
 
         assertNotNull(result);
         assertNotNull(result.getId());

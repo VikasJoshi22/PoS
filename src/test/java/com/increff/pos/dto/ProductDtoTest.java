@@ -1,14 +1,14 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
+import com.increff.pos.AbstractUnitTest;
+import com.increff.pos.TestHelper;
 import com.increff.pos.dao.ClientDao;
 import com.increff.pos.dao.InventoryDao;
 import com.increff.pos.dao.ProductDao;
-import com.increff.pos.dto.ProductDto;
 import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.data.ProductData;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.pojo.ClientPojo;
-import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
 import org.junit.Test;

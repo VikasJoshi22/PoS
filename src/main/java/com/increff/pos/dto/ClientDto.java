@@ -5,10 +5,10 @@ import com.increff.pos.model.data.ClientData;
 import com.increff.pos.model.form.ClientForm;
 import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.utils.ApiException;
+import com.increff.pos.utils.UtilMethods;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 
@@ -19,8 +19,8 @@ public class ClientDto {
     private ClientApi clientApi;
 
     public void add(ClientForm client) throws ApiException {
-        DtoHelper.normalizeClientForm(client);
-        DtoHelper.validateClientForm(client);
+        UtilMethods.normalizeClientForm(client);
+        UtilMethods.validateClientForm(client);
         ClientPojo clientPojo = DtoHelper.convertClientFormToClientPojo(client);
         clientApi.add(clientPojo);
     }
@@ -31,8 +31,8 @@ public class ClientDto {
     }
 
     public void update(Integer id, ClientForm clientForm) throws ApiException{
-        DtoHelper.normalizeClientForm(clientForm);
-        DtoHelper.validateClientForm(clientForm);
+        UtilMethods.normalizeClientForm(clientForm);
+        UtilMethods.validateClientForm(clientForm);
         clientApi.update(id, clientForm.getName());
     }
 

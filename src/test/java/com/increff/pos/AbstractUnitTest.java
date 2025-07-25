@@ -1,5 +1,6 @@
 package com.increff.pos;
 
+import com.increff.pos.utils.ApiException;
 import org.springframework.transaction.annotation.Transactional;
 
 import org.junit.runner.RunWith;
@@ -10,7 +11,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = QaConfig.class)
 @WebAppConfiguration
-@Transactional
+@Transactional(rollbackFor = ApiException.class)
 public abstract class AbstractUnitTest{
 
 }

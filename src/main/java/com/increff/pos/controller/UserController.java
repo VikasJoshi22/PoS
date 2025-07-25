@@ -16,6 +16,7 @@ import java.util.Objects;
 
 @Api
 @RestController
+@RequestMapping(path = "/api/user")
 public class UserController {
     @Autowired
     private UserDto userDto;

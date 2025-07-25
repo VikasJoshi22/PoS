@@ -6,7 +6,7 @@ import com.increff.pos.model.data.ErrorData;
 import com.increff.pos.model.data.OrderData;
 import com.increff.pos.model.data.OrderError;
 import com.increff.pos.model.form.OrderFilters;
-import com.increff.pos.model.form.OrderForm;
+import com.increff.pos.model.form.OrderItemForm;
 import com.increff.pos.pojo.OrderPojo;
 import com.increff.pos.utils.ApiException;
 import io.swagger.annotations.Api;
@@ -28,8 +28,8 @@ public class OrderController {
 
     @ApiOperation("create bulk order")
     @RequestMapping(path = "/create", method = RequestMethod.PUT)
-    public ErrorData<OrderError> create(@RequestBody List<OrderForm> orderFormList) throws ApiException{
-        return orderDto.create(orderFormList);
+    public ErrorData<OrderError> create(@RequestBody List<OrderItemForm> orderItemFormList) throws ApiException{
+        return orderDto.create(orderItemFormList);
     }
 
     @ApiOperation("getting an order details")

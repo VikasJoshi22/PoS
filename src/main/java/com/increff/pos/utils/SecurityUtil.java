@@ -17,13 +17,4 @@ public class SecurityUtil {
         SecurityContextHolder.getContext().setAuthentication(token);
     }
 
-    public static Authentication getAuthentication() {
-        return SecurityContextHolder.getContext().getAuthentication();
-    }
-
-    public static UserPrincipal getPrincipal() {
-        Authentication token = getAuthentication();
-        return token == null ? null : (UserPrincipal) getAuthentication().getPrincipal();
-    }
-
 }

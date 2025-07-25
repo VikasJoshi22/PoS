@@ -1,7 +1,7 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
+import com.increff.pos.AbstractUnitTest;
 import com.increff.pos.dao.ClientDao;
-import com.increff.pos.dto.ClientDto;
 import com.increff.pos.model.data.ClientData;
 import com.increff.pos.model.form.ClientForm;
 import com.increff.pos.pojo.ClientPojo;

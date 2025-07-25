@@ -3,7 +3,7 @@ package com.increff.pos;
 import com.increff.pos.model.form.InventoryForm;
 import com.increff.pos.model.form.ProductForm;
 import com.increff.pos.model.form.ClientForm;
-import com.increff.pos.model.form.OrderForm;
+import com.increff.pos.model.form.OrderItemForm;
 import com.increff.pos.model.form.OrderFilters;
 import com.increff.pos.model.form.DailySalesReportForm;
 import com.increff.pos.model.form.SalesReportForm;
@@ -45,16 +45,16 @@ public class TestHelper {
         return form;
     }
     
-    public static OrderForm createOrderForm(String barcode, Integer quantity, Double sellingPrice) {
-        OrderForm form = new OrderForm();
+    public static OrderItemForm createOrderForm(String barcode, Integer quantity, Double sellingPrice) {
+        OrderItemForm form = new OrderItemForm();
         form.setBarcode(barcode);
         form.setQuantity(quantity);
         form.setSellingPrice(sellingPrice);
         return form;
     }
     
-    public static List<OrderForm> createOrderFormList(String barcode, Integer quantity, Double sellingPrice) {
-        List<OrderForm> list = new ArrayList<>();
+    public static List<OrderItemForm> createOrderFormList(String barcode, Integer quantity, Double sellingPrice) {
+        List<OrderItemForm> list = new ArrayList<>();
         list.add(createOrderForm(barcode, quantity, sellingPrice));
         return list;
     }

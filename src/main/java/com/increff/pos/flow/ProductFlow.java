@@ -8,7 +8,6 @@ import com.increff.pos.pojo.ClientPojo;
 import com.increff.pos.pojo.InventoryPojo;
 import com.increff.pos.pojo.ProductPojo;
 import com.increff.pos.utils.ApiException;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -81,7 +80,7 @@ public class ProductFlow {
 
     private void doesClientExists(Integer clientId) throws ApiException{
         try{
-            ClientPojo clientPojo = clientApi.getById(clientId);
+            clientApi.getById(clientId);
         }catch (ApiException e){
             throw new ApiException("Client doesn't exists");
         }

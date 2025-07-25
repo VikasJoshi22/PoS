@@ -1,9 +1,10 @@
-package com.increff.pos;
+package com.increff.pos.dto;
 
+import com.increff.pos.AbstractUnitTest;
+import com.increff.pos.TestHelper;
 import com.increff.pos.dao.ClientDao;
 import com.increff.pos.dao.InventoryDao;
 import com.increff.pos.dao.ProductDao;
-import com.increff.pos.dto.InventoryDto;
 import com.increff.pos.model.data.InventoryData;
 import com.increff.pos.model.data.OperationResponse;
 import com.increff.pos.model.form.InventoryForm;
